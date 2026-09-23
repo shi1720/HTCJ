@@ -1,0 +1,21 @@
+services:
+  groundproof:
+    build: .
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3001:3001'
+    environment:
+      NODE_ENV: production
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Set PUBLIC_ORIGIN to your HTTPS domain}
+      ANAKIN_API_KEY: ${ANAKIN_API_KEY:-}
+      ANAKIN_DAILY_LIMIT: ${ANAKIN_DAILY_LIMIT:-30}
+      DATABASE_PATH: /app/data/groundproof.sqlite
+    volumes:
+      - groundproof-data:/app/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+volumes:
+  groundproof-data:

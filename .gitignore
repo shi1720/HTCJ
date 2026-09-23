@@ -1,0 +1,16 @@
+node_modules/
+dist/
+data/
+.env
+.env.*
+!.env.example
+playwright-report/
+test-results/
+*.log
+.DS_Store
+work/
+.wrangler/
+.dev.vars
+.dev.vars.*
+workers/env.d.ts
+.recordings/

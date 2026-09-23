@@ -1,0 +1,46 @@
+{
+  "name": "groundproof",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k 'tsx watch server/index.ts' 'vite --host 0.0.0.0'",
+    "build": "tsc --noEmit && vite build",
+    "start": "tsx server/index.ts",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "check": "npm run build && npm test",
+    "typecheck:workers": "wrangler types workers/env.d.ts && tsc --project workers/tsconfig.json",
+    "test:workers": "vitest run --config workers/vitest.config.ts",
+    "deploy": "npm run build && wrangler deploy",
+    "format": "prettier --write src shared server tests workers scripts .github *.json *.ts",
+    "verify:packet": "tsx scripts/verify-packet.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/static": "^10.1.4",
+    "better-sqlite3": "^12.2.0",
+    "fastify": "^5.4.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.55.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.2.0",
+    "prettier": "^3.9.9",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.0",
+    "vitest": "^4.1.11",
+    "wrangler": "^4.136.3"
+  }
+}
