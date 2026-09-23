@@ -409,7 +409,7 @@ code {
   background: #e8eee1;
   border: 1px solid #dce4d3;
   overflow: hidden;
-  min-height: 440px;
+  min-height: 530px;
   margin-top: 4px;
   display: flex;
   flex-direction: column;
@@ -427,7 +427,7 @@ code {
   position: relative;
   height: 340px;
   flex: 1;
-  min-height: 320px;
+  min-height: 400px;
   background-image: radial-gradient(#aab79c55 0.7px, transparent 0.7px);
   background-size: 12px 12px;
   overflow: hidden;
@@ -455,7 +455,9 @@ code {
 .orbit-center {
   position: absolute;
   left: 50%;
-  top: 45%;
+  top: 41%;
+  width: max-content;
+  max-width: calc(100% - 40px);
   transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
@@ -496,7 +498,7 @@ code {
 }
 .fc2 {
   right: 5%;
-  top: 56%;
+  top: 59%;
   transform: rotate(2deg);
 }
 .fc3 {
@@ -2764,7 +2766,7 @@ code {
   }
   .landing-visual {
     margin-top: 30px;
-    min-height: 450px;
+    min-height: 530px;
   }
   .landing-copy .landing-secondary {
     max-width: 460px;
@@ -2781,7 +2783,7 @@ code {
   }
   .fc2 {
     right: 12%;
-    top: 51%;
+    top: 59%;
   }
   .fc3 {
     left: 17%;
@@ -2791,7 +2793,7 @@ code {
     padding-bottom: 40px;
   }
   .orbit-map {
-    min-height: 340px;
+    min-height: 400px;
   }
   .visual-top {
     font-size: 10px;
@@ -3281,11 +3283,11 @@ code {
     font-size: 10px;
   }
   .landing-visual {
-    min-height: 390px;
+    min-height: 490px;
     margin-top: 25px;
   }
   .orbit-map {
-    min-height: 290px;
+    min-height: 360px;
   }
   .visual-top {
     padding: 16px;
@@ -3317,14 +3319,14 @@ code {
   }
   .fc2 {
     right: 5%;
-    top: 56%;
+    top: 59%;
   }
   .fc3 {
     left: 9%;
     bottom: 1%;
   }
   .orbit-center {
-    top: 43%;
+    top: 41%;
   }
   .orbit-center span {
     font-size: 20px;
