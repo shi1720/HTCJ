@@ -42,7 +42,7 @@ A real authenticated Anakin capture of Boston's public filming-permit guidance s
 
 The demonstration follows one failure and recovery: approved jobs, a simulated site closure, affected approvals invalidated, an attempted approval rejected, current evidence reviewed, a fresh mission approval, and a downloaded evidence packet. It also shows stale or unavailable evidence and the proof lab.
 
-The repository includes a word-for-word narration and recording instructions in `docs/DEMO-SCRIPT.md`. The final video link should be added only after recording and uploading the actual demonstration.
+The [v1.0.0 release](https://github.com/shi1720/HTCJ/releases/tag/v1.0.0) includes an actual 3:30 public-app recording in clean and captioned silent versions. The repository includes word-for-word narration and recording instructions in `docs/DEMO-SCRIPT.md`. Add Shivam’s recorded voice and upload the narrated video to a host accepted by Devpost before inserting the final submission video URL.
 
 ### 6. Images and screenshots
 

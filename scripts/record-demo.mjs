@@ -476,7 +476,7 @@ try {
         {
           recordedAt: new Date().toISOString(),
           url,
-          durationSeconds: totalSeconds,
+          targetDurationSeconds: totalSeconds,
           width: 1440,
           height: 900,
           narrationWords: wordCount,

@@ -18,6 +18,9 @@ Observed September 23, 2026. This is a software release record, not customer val
 - **Accessibility:** zero serious or critical Axe findings on nine tested surfaces; WCAG2 A/AA and WCAG2.1 A/AA rule tags.
 - **Clean Linux CI:** all steps passed, including build, both backend suites, Worker typecheck, audit and eight browser workflows. [GitHub Actions run](https://github.com/shi1720/HTCJ/actions/runs/35848318369).
 
+- **Recorded demo:** 209.96 seconds of actual public-app footage, H.264 at 25 fps, with successful live Anakin capture and the 15-case rule lab. Clean and captioned variants are silent and ready for Shivam’s narration.
+- **Recorded decision packet:** independently verified against the separately observed manifest digest, with `valid:true` and no errors.
+
 ## What was exercised
 
 The suites cover a changed dependency revoking only dependent approvals, stale source-review rejection, required mission revisions, restored bytes not reviving old signatures, failed captures retaining prior text while holding work, expiry through a scheduled mission, provider allowance reservations, monitoring schedules and retries, account/session persistence, cross-workspace denial, and independent packet integrity checks.
