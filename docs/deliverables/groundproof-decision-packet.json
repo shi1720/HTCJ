@@ -1,0 +1,221 @@
+{
+  "schemaVersion": "groundproof.evidence.v1",
+  "exportedAt": "2026-09-23T10:29:21.622Z",
+  "scope": "Operational evidence management only. This bundle is not flight authorization, legal advice, airspace clearance or proof of insurance. A SHA-256 digest detects changes; it does not establish third-party authenticity.",
+  "workspace": {
+    "name": "Boston field operations",
+    "demo": true
+  },
+  "mission": {
+    "id": "0187ca44-5705-46a3-9d08-538c5067816c",
+    "revision": 3,
+    "name": "Facade inspection · east elevation",
+    "client": "Harbor Works development",
+    "siteId": "1f8470e0-b794-44a3-b7d7-6dda7c1fe53e",
+    "scheduledAt": "2026-09-24T10:27:27.616Z",
+    "value": 1800,
+    "sourceIds": [
+      "a511dbf1-29a1-4949-824f-bb4856d8c4fd",
+      "42ca7c93-906e-4e8f-92e9-df6f70f36c8a",
+      "b7071c9b-6e6c-4838-a29c-8b149fa33e98"
+    ],
+    "approval": {
+      "id": "4d538750-57f6-4a8f-8187-d86c1eb94284",
+      "actor": "Demo operator",
+      "at": "2026-09-23T10:29:13.689Z",
+      "note": "Reviewed current site access, operating checklist and insurance evidence for this fictional job.",
+      "hashes": {
+        "a511dbf1-29a1-4949-824f-bb4856d8c4fd": "4a0cef877050c2f97acfce80a5b0d3d49b5692d86f60731c876aa3b6fbc11db9",
+        "42ca7c93-906e-4e8f-92e9-df6f70f36c8a": "c39be831f3a6404f3c188e15a0aaafe7d0a3c6d4a4b12b8c794f5b6f7053e8f9",
+        "b7071c9b-6e6c-4838-a29c-8b149fa33e98": "f95a1025c5f0cdb082a74ab17e6b7e719fe215454b1d31c1f7e77e5d5c5199b3"
+      }
+    },
+    "createdAt": "2026-09-23T10:27:27.616Z",
+    "assessment": {
+      "status": "ready",
+      "issues": []
+    }
+  },
+  "site": {
+    "id": "1f8470e0-b794-44a3-b7d7-6dda7c1fe53e",
+    "name": "Harbor Works",
+    "address": "Boston waterfront · fictional demonstration site",
+    "lat": 42.35,
+    "lon": -71.041
+  },
+  "sources": [
+    {
+      "id": "a511dbf1-29a1-4949-824f-bb4856d8c4fd",
+      "title": "Harbor Works access notice",
+      "url": "https://fixtures.groundproof.local/source-1",
+      "category": "site-access",
+      "siteId": "1f8470e0-b794-44a3-b7d7-6dda7c1fe53e",
+      "freshnessHours": 24,
+      "latest": {
+        "id": "51236a52-1ee6-476a-bcab-17804f077d2a",
+        "hash": "4a0cef877050c2f97acfce80a5b0d3d49b5692d86f60731c876aa3b6fbc11db9",
+        "content": "SIMULATED EVIDENCE — NOT AN OPERATIONAL NOTICE\nHarbor Works access notice | Revision A\nSite: Harbor Works, Boston demonstration area.\nContractor access is open 08:00–18:00 for scheduled inspection teams.\nCoordinate with the site supervisor before entering the loading area.\nThis fictional fixture provides no airspace or flight authorization.",
+        "capturedAt": "2026-09-23T10:28:52.606Z",
+        "provider": "fixture"
+      },
+      "previous": {
+        "id": "0859a054-b6dd-4497-a06e-c3d28c891612",
+        "hash": "a51297278674da1e676e95304d2c893908a317a8d2f76524f5059b72ea8bb59c",
+        "content": "SIMULATED EVIDENCE — NOT AN OPERATIONAL NOTICE\nHarbor Works access notice | Revision B\nSITE ACCESS SUSPENDED: crane operations now occupy the contractor staging area.\nNo contractor access until the site supervisor confirms a new access window.\nThe three demonstration inspection jobs require a human scheduling decision.\nThis fictional fixture provides no airspace or flight authorization.",
+        "capturedAt": "2026-09-23T10:28:03.604Z",
+        "provider": "fixture"
+      },
+      "reviewedHash": "4a0cef877050c2f97acfce80a5b0d3d49b5692d86f60731c876aa3b6fbc11db9",
+      "reviewDecision": "accepted",
+      "reviewNote": "Checked the updated fictional notice and confirmed the current site conditions.",
+      "reviewedBy": "Demo operator",
+      "reviewedAt": "2026-09-23T10:29:03.592Z",
+      "lastError": null,
+      "updatedAt": "2026-09-23T10:29:03.592Z",
+      "fixture": true
+    },
+    {
+      "id": "42ca7c93-906e-4e8f-92e9-df6f70f36c8a",
+      "title": "Airspace planning checklist",
+      "url": "https://fixtures.groundproof.local/source-2",
+      "category": "airspace",
+      "siteId": null,
+      "freshnessHours": 24,
+      "latest": {
+        "id": "9ade4da4-95b9-4e86-8b80-43c4075c53eb",
+        "hash": "c39be831f3a6404f3c188e15a0aaafe7d0a3c6d4a4b12b8c794f5b6f7053e8f9",
+        "content": "SIMULATED EVIDENCE — NOT FLIGHT AUTHORIZATION\nDemonstration planning checklist reviewed. Before every real mission, the remote pilot must independently verify airspace restrictions, authorizations, weather and all applicable operating requirements. No live airspace information is included.",
+        "capturedAt": "2026-09-23T10:27:27.616Z",
+        "provider": "fixture"
+      },
+      "previous": null,
+      "reviewedHash": "c39be831f3a6404f3c188e15a0aaafe7d0a3c6d4a4b12b8c794f5b6f7053e8f9",
+      "reviewDecision": "accepted",
+      "reviewNote": "Simulation baseline reviewed for the demonstration only.",
+      "reviewedBy": "Demo operations lead",
+      "reviewedAt": "2026-09-23T10:27:27.616Z",
+      "lastError": null,
+      "updatedAt": "2026-09-23T10:27:27.616Z",
+      "fixture": true
+    },
+    {
+      "id": "b7071c9b-6e6c-4838-a29c-8b149fa33e98",
+      "title": "Operator insurance record",
+      "url": "https://fixtures.groundproof.local/source-3",
+      "category": "insurance",
+      "siteId": null,
+      "freshnessHours": 24,
+      "latest": {
+        "id": "3bcd0ecd-05e9-419d-9d9c-4cbc3da67f61",
+        "hash": "f95a1025c5f0cdb082a74ab17e6b7e719fe215454b1d31c1f7e77e5d5c5199b3",
+        "content": "SIMULATED EVIDENCE — NOT AN INSURANCE POLICY\nFictional demonstration operator has an insurance checklist on file. Verify coverage, exclusions and current policy documents with the operator before any real engagement.",
+        "capturedAt": "2026-09-23T10:27:27.616Z",
+        "provider": "fixture"
+      },
+      "previous": null,
+      "reviewedHash": "f95a1025c5f0cdb082a74ab17e6b7e719fe215454b1d31c1f7e77e5d5c5199b3",
+      "reviewDecision": "accepted",
+      "reviewNote": "Simulation baseline reviewed for the demonstration only.",
+      "reviewedBy": "Demo operations lead",
+      "reviewedAt": "2026-09-23T10:27:27.616Z",
+      "lastError": null,
+      "updatedAt": "2026-09-23T10:27:27.616Z",
+      "fixture": true
+    }
+  ],
+  "audit": [
+    {
+      "id": "b2b3db03-788b-4d94-a8d0-d91d0b03ce2a",
+      "at": "2026-09-23T10:27:27.616Z",
+      "actor": "Demo operations lead",
+      "action": "evidence.reviewed",
+      "objectName": "Harbor Works access notice",
+      "detail": "Simulation baseline accepted; SHA-256 4a0cef877050c2f97acfce80a5b0d3d49b5692d86f60731c876aa3b6fbc11db9."
+    },
+    {
+      "id": "49a32b93-1d57-4a90-aca9-c6bb89f94c14",
+      "at": "2026-09-23T10:27:27.616Z",
+      "actor": "Demo operations lead",
+      "action": "evidence.reviewed",
+      "objectName": "Airspace planning checklist",
+      "detail": "Simulation baseline accepted; SHA-256 c39be831f3a6404f3c188e15a0aaafe7d0a3c6d4a4b12b8c794f5b6f7053e8f9."
+    },
+    {
+      "id": "5ff41a14-6424-4b16-9349-b11683c39acb",
+      "at": "2026-09-23T10:27:27.616Z",
+      "actor": "Demo operations lead",
+      "action": "evidence.reviewed",
+      "objectName": "Operator insurance record",
+      "detail": "Simulation baseline accepted; SHA-256 f95a1025c5f0cdb082a74ab17e6b7e719fe215454b1d31c1f7e77e5d5c5199b3."
+    },
+    {
+      "id": "d07eff70-2234-4cb5-82f5-d86b0f1db8eb",
+      "at": "2026-09-23T10:27:27.616Z",
+      "actor": "Demo operations lead",
+      "action": "mission.approved",
+      "objectName": "Facade inspection · east elevation",
+      "detail": "Simulation baseline approval 0e368065-a24c-4213-8397-1cccec0a4092; no flight authorization."
+    },
+    {
+      "id": "ea226a6e-ad31-4391-9c91-a5c90f68aa5b",
+      "at": "2026-09-23T10:28:03.604Z",
+      "actor": "Demo operator",
+      "action": "mission.invalidated",
+      "objectName": "Facade inspection · east elevation",
+      "detail": "Demonstration scenario: closure. Previous approval 0e368065-a24c-4213-8397-1cccec0a4092 is no longer valid."
+    },
+    {
+      "id": "f3e95a17-8855-439d-8a3f-e23ccdf8caf1",
+      "at": "2026-09-23T10:28:03.604Z",
+      "actor": "Demo operator",
+      "action": "demo.closure",
+      "objectName": "Harbor Works access notice",
+      "detail": "Injected a fictional scenario. All dependent signatures invalidated. No real source or aviation operation was modified."
+    },
+    {
+      "id": "72436f07-a2b1-4e92-a1ae-0b253fe1ebc6",
+      "at": "2026-09-23T10:28:44.653Z",
+      "actor": "Demo operator",
+      "action": "evidence.reviewed",
+      "objectName": "Harbor Works access notice",
+      "detail": "blocked; SHA-256 a51297278674da1e676e95304d2c893908a317a8d2f76524f5059b72ea8bb59c; Site staging area is suspended. Keep the three linked missions on hold."
+    },
+    {
+      "id": "8bdce63c-8326-42f2-9284-8b9478e83224",
+      "at": "2026-09-23T10:28:52.606Z",
+      "actor": "Demo operator",
+      "action": "demo.restore",
+      "objectName": "Harbor Works access notice",
+      "detail": "Injected a fictional scenario. All dependent signatures invalidated. No real source or aviation operation was modified."
+    },
+    {
+      "id": "b312085a-ae79-468a-8250-299fcc88a86d",
+      "at": "2026-09-23T10:29:03.592Z",
+      "actor": "Demo operator",
+      "action": "evidence.reviewed",
+      "objectName": "Harbor Works access notice",
+      "detail": "accepted; SHA-256 4a0cef877050c2f97acfce80a5b0d3d49b5692d86f60731c876aa3b6fbc11db9; Checked the updated fictional notice and confirmed the current site conditions."
+    },
+    {
+      "id": "ed30633f-4736-4d1b-b3de-d2989877aedb",
+      "at": "2026-09-23T10:29:13.689Z",
+      "actor": "Demo operator",
+      "action": "mission.approved",
+      "objectName": "Facade inspection · east elevation",
+      "detail": "Approval 4d538750-57f6-4a8f-8187-d86c1eb94284; Reviewed current site access, operating checklist and insurance evidence for this fictional job.; bound hashes {\"a511dbf1-29a1-4949-824f-bb4856d8c4fd\":\"4a0cef877050c2f97acfce80a5b0d3d49b5692d86f60731c876aa3b6fbc11db9\",\"42ca7c93-906e-4e8f-92e9-df6f70f36c8a\":\"c39be831f3a6404f3c188e15a0aaafe7d0a3c6d4a4b12b8c794f5b6f7053e8f9\",\"b7071c9b-6e6c-4838-a29c-8b149fa33e98\":\"f95a1025c5f0cdb082a74ab17e6b7e719fe215454b1d31c1f7e77e5d5c5199b3\"}. This is an evidence sign-off, not flight authorization."
+    },
+    {
+      "id": "53897d4f-e567-42ee-9f09-e903d3dc310a",
+      "at": "2026-09-23T10:29:21.622Z",
+      "actor": "Demo operator",
+      "action": "mission.exported",
+      "objectName": "Facade inspection · east elevation",
+      "detail": "Exported a self-contained evidence bundle with canonical SHA-256 manifest."
+    }
+  ],
+  "manifest": {
+    "algorithm": "SHA-256",
+    "canonicalization": "Recursive lexicographic object-key ordering; array order preserved; UTF-8 JSON; exclude manifest from hash.",
+    "hash": "0b88a23adeae7f3bc47081c418602247f889483f561024bc73dccd7956e4b89e"
+  }
+}

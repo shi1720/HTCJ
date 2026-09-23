@@ -2,6 +2,8 @@
 
 **Yesterday's approval. Today's evidence.**
 
+[![Release quality](https://github.com/shi1720/HTCJ/actions/workflows/quality.yml/badge.svg)](https://github.com/shi1720/HTCJ/actions/workflows/quality.yml)
+
 [Open the live product](https://groundproof.groundproof.workers.dev) · [Submission](docs/SUBMISSION.md) · [Pitch deck](docs/deliverables/groundproof-pitch.pptx) · [Pilot brief](docs/deliverables/groundproof-pilot-brief.pdf)
 
 GroundProof is an operational evidence desk for commercial drone inspection teams. It binds a mission's human signoff to the exact source versions reviewed. When evidence changes, expires, fails capture, or is held by a reviewer, affected work loses its old signoff. An unchanged source or a successful recovery does not silently revive a revoked approval.
@@ -64,6 +66,8 @@ npm audit
 ```
 
 The browser suite runs real workflows at desktop and mobile sizes and includes accessibility checks. It requires the app to be running; see `playwright.config.ts` for the base URL. Live public-source tests depend on upstream availability. Unit and API tests use deterministic fixtures and isolated databases.
+
+A [sample decision packet](docs/deliverables/groundproof-decision-packet.json) and its [observed manifest](docs/deliverables/groundproof-decision-manifest.sha256) are included from the recorded fictional demonstration. [Browser verification](docs/BROWSER-VERIFICATION.md) documents the desktop/mobile test harness.
 
 To verify an exported packet:
 

@@ -14,7 +14,7 @@ export async function captionDemo({
   srt,
   output,
   workingDirectory,
-  ffmpeg = process.env.FFMPEG_PATH ?? "/opt/homebrew/bin/ffmpeg",
+  ffmpeg = process.env.FFMPEG_PATH ?? "ffmpeg",
 }) {
   const raw = await readFile(srt, "utf8");
   const cues = raw

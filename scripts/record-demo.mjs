@@ -443,7 +443,7 @@ try {
     const videoPath = await video.path();
     const target = resolve(output, "groundproof-demo-silent.mp4");
     const converted = spawnSync(
-      process.env.FFMPEG_PATH ?? "/opt/homebrew/bin/ffmpeg",
+      process.env.FFMPEG_PATH ?? "ffmpeg",
       [
         "-y",
         "-ss",

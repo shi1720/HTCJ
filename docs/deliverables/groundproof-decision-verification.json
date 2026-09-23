@@ -1,0 +1,8 @@
+{
+  "valid": true,
+  "errors": [],
+  "manifestHash": "0b88a23adeae7f3bc47081c418602247f889483f561024bc73dccd7956e4b89e",
+  "missionId": "0187ca44-5705-46a3-9d08-538c5067816c",
+  "sourceCount": 3,
+  "scope": "Integrity only: this is not a digital signature, third-party authenticity verification, or flight authorization."
+}

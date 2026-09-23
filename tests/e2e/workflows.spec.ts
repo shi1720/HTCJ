@@ -4,7 +4,9 @@ import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { hashManifest } from "../../server/evidence";
 
-const outputs = resolve(process.cwd(), "../../outputs");
+const outputs = resolve(
+  process.env.E2E_OUTPUT_DIR ?? resolve(process.cwd(), "work/e2e-screenshots"),
+);
 const primaryMission = "Facade inspection · east elevation";
 const notice = "Harbor Works access notice";
 
