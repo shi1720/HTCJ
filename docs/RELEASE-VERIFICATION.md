@@ -1,36 +1,85 @@
 # GroundProof release verification
 
-Observed September 23, 2026. This is a software release record, not customer validation or aviation certification.
+Observed September 23, 2026. This records covered software behavior and deployment checks. It does not establish customer adoption, field reliability or aviation certification.
 
-- **Product:** https://groundproof.groundproof.workers.dev
-- **Repository:** https://github.com/shi1720/HTCJ
-- **Application code commit:** `e1501cba47daecb96bcd31859427b84fc3779a02`
-- **Cloudflare deployment version:** `490276e8-1e56-409e-a0f1-589e94dfad66`
-- **Build:** TypeScript and Vite production build passed.
-- **Native backend and rules:** 139 tests passed across eight files.
-- **Cloudflare compatibility:** 143 tests passed across ten files. This includes the same native cases plus adapter cases; the counts are not additive.
-- **Worker typecheck:** generated runtime types and strict TypeScript check passed.
-- **Dependency audit:** zero reported vulnerabilities at the time of the check.
-- **Public HTTP acceptance:** 34 assertions passed against the real HTTPS deployment, covering registration, authentication, tenant isolation, stale approvals, operator-record changes and exports.
-- **Local browser acceptance:** eight desktop/mobile workflows passed against the built application, including live FAA retrieval and record-expiry behavior.
+**Primary application:** https://groundproof-flight.web.app
 
-- **Public browser acceptance:** all eight workflows passed against the final HTTPS deployment in 2.6 minutes.
-- **Accessibility:** zero serious or critical Axe findings on nine tested surfaces; WCAG2 A/AA and WCAG2.1 A/AA rule tags.
-- **Clean Linux CI:** all steps passed, including build, both backend suites, Worker typecheck, audit and eight browser workflows. [GitHub Actions run](https://github.com/shi1720/HTCJ/actions/runs/35848318369).
+**Repository:** https://github.com/shi1720/HTCJ
 
-- **Recorded demo:** 209.96 seconds of actual public-app footage, H.264 at 25 fps, with successful live Anakin capture and the 15-case rule lab. Clean and captioned variants are silent and ready for Shivam’s narration.
-- **Recorded decision packet:** independently verified against the separately observed manifest digest, with `valid:true` and no errors.
+## Release identity
 
-## What was exercised
+| Component | Verified identity |
+| --- | --- |
+| Backend and complete functional baseline | `c277bbdbd32eccb93d23e70531a3cb9d1bd0ec66` |
+| Final Firebase frontend, including landing-only CSS refinement | `a64ac2c6d7510c6ccb54d6b064a4ef63c23e680e` |
+| Firebase Hosting version | `3967c6203a6b3502` |
+| Hosting release time | `2026-09-23T11:20:57.483Z` |
+| Cloud Run API gateway | `groundproof-api-00001-8jq`, `us-central1` |
+| Cloudflare Worker version | `4322a99f-ed8d-4620-8125-c7ad84eec57b` |
+| Durable database | Existing `groundproof-pilot-v1` Durable Object, schema 5 |
 
-The suites cover a changed dependency revoking only dependent approvals, stale source-review rejection, required mission revisions, restored bytes not reviving old signatures, failed captures retaining prior text while holding work, expiry through a scheduled mission, provider allowance reservations, monitoring schedules and retries, account/session persistence, cross-workspace denial, and independent packet integrity checks.
+The complete hosted workflow suite exercised the functional baseline. The subsequent change adjusts landing illustration CSS only. Its final published assets and five-width layout checks are recorded separately below. This distinction avoids claiming that the entire workflow suite ran again on the CSS-only commit. The original Cloudflare host retains the functional baseline's static frontend.
 
-Three rate-limit regression tests run with the actual limiter enabled. They verify HTTP429 with Retry-After, static/health availability without consuming API allowance, and isolation of trusted client buckets. This fixed a response-classification error found during the final browser pass.
+## Executed checks
 
-Actual workerd checks covered persisted sessions after restart and an opt-in scheduled alarm capturing an FAA page without browser activity. The authenticated Anakin retrieval record is included separately. The product demonstration uses fictional jobs and simulated notices; it does not substitute those fixtures for the live provider proof.
+| Check | Observed result | Scope |
+| --- | --- | --- |
+| TypeScript and Vite production build | Passed | Native application and production frontend |
+| Native automated suite | 156 tests passed across 10 files | API, evidence, authentication, recovery, histories, monitoring, provider budgets and packet checks |
+| Worker-inclusive compatibility suite | 162 tests passed across 13 files | Includes the native cases plus adapter and signed gateway-metadata tests |
+| Worker typecheck | Passed | Generated runtime declarations and strict TypeScript check |
+| Cloud Run gateway HTTP suite | 3 tests passed | Cookie translation, origins, request bounds, signed metadata, cache controls and unexpected redirects |
+| Dependency audit | Zero reported vulnerabilities | Dependency audit at verification time, not an independent security audit |
+| Local browser acceptance | 16 of 16 cases passed | Production build at localhost:3002; 14 baseline cases plus 2 focused stale-session cases |
+| Firebase browser acceptance | 16 of 16 cases passed | All cases together, no retries or skips; 347.215317 seconds, completed `2026-09-23T11:15:22.498317Z` |
+| Firebase HTTP acceptance | 43 of 43 checks passed | Real hosted API, gateway and durable database, completed `2026-09-23T11:08:51.785Z` |
+| Original Cloudflare HTTP acceptance | 41 of 41 checks passed | Real HTTPS backend, completed `2026-09-23T11:07:45.938Z` |
+| Automated accessibility | Zero serious or critical Axe findings | Tested desktop/mobile surfaces using WCAG2 A/AA and WCAG2.1 A/AA tags |
+
+The native and Worker-inclusive counts overlap. They are not additive. Browser cases repeat the workflows at desktop and mobile sizes, rather than representing 16 unrelated features.
+
+Clean Linux CI passed on the [functional baseline](https://github.com/shi1720/HTCJ/actions/runs/35852733460) and the [subsequent documentation/media-pipeline commit](https://github.com/shi1720/HTCJ/actions/runs/35852981119). The latter is commit `d79af72e499ad653e5493d3af99bd5a46aaa0e29`. The final landing commit also passed [the complete clean Linux pipeline](https://github.com/shi1720/HTCJ/actions/runs/35853952984). This CI result is separate from the hosted CSS checks.
+
+## What the workflow checks exercise
+
+The public application passed registration, session rotation, saved-key recovery, password changes, recovery-key replacement and revocation of prior sessions. Source histories remain tenant-scoped, with source-specific pagination. Operators can record private excerpts, declare validity, update a version, review it separately and sign a mission only with current evidence and mission revision.
+
+The evidence workflow covers changed dependencies, stale signoff rejection, restored bytes not reviving old signatures, capture failure preserving previous text, expiry through a scheduled job, separate source review and mission signoff, and JSON export checked by the offline verifier. A real FAA retrieval is part of the browser flow. The separately recorded authenticated Anakin trace supports that integration claim; it does not establish provider availability or complete source coverage.
+
+Targeted regressions exercise an old-password login racing a credential reset, competing recovery requests, and a late scheduled capture after a newer manual capture. The browser suite also checks a delayed response from an old session cannot contaminate a new workspace. That one case intentionally injects a delayed 401 response; the other browser workflows use the actual API.
+
+Firebase checks include `__session` cookie translation, Secure/HttpOnly/SameSite flags, exact-origin enforcement, separately authenticated request limits and private/no-store API caching. Firebase itself returns an empty-data HTTP400 for an intentionally malformed `%ZZ` path before the application runs; application cache headers cannot be attached to that edge response.
+
+## Final static and responsive acceptance
+
+At `2026-09-23T11:21:13.197Z`, the deployed Firebase HTML, JavaScript and CSS matched the compiled build byte-for-byte. The hashed assets returned HTTP200 with immutable caching. The social cover, robots file and SPA deep link also returned HTTP200.
+
+The final landing illustration passed local production-build checks and subsequent checks against the actual Firebase site at widths **320, 390, 768, 1024 and 1440 pixels**. No caption/card intersections, card-to-card intersections, clipped artwork footer or horizontal overflow were reported. Axe found zero serious or critical issues at those widths. The hosted check completed at `2026-09-23T11:22:20.185Z`. The final CSS does not change the gateway or backend.
+
+Machine-readable records:
+
+- [Firebase deployment and hosted checks](deliverables/firebase-deployment-verification.json)
+- [Desktop/mobile browser workflows](deliverables/browser-verification.json)
+- [Landing artwork checks](deliverables/landing-art-verification.json)
+
+Additional deployment detail is in [Firebase verification](FIREBASE-VERIFICATION.md) and the [Firebase runbook](FIREBASE.md).
+
+## Narrated demonstration acceptance
+
+The final recording shows the actual Firebase application and completed at `2026-09-23T11:26:36.976Z`. All recorded browser actions passed, with no application errors. Its genuine Anakin capture returned 5,930 characters from the Boston source at `2026-09-23T11:25:54.529Z`; the provider, timestamp and content hash are preserved in the evidence record.
+
+The finished video is **210 seconds**, H.264 at **1440 × 1080**, with **48 kHz AAC narration**. Measured integrated loudness is **-16.68 LUFS**, with a **-1.43 dBTP** true peak. The voice is an explicitly disclosed OpenAI cedar narrator, not a voice clone. All eight speech transcripts were compared with the intended script. Forty-four captions use actual word timestamps, restored punctuation and monetary formatting, and a reserved band below the product footage. A nine-frame storyboard and full-resolution comparison, Anakin and commercial frames were inspected.
+
+The recorded decision packet independently passed the verifier against the separately observed digest `40af31a222c6ee6d020a7a6275c9304736a12b669257a69950f6c3d37552b375`, with `valid:true` and no errors. See [video verification](deliverables/groundproof-video-verification.json), [recording log](deliverables/groundproof-demo-recording.json) and [packet verification](deliverables/groundproof-decision-verification.json).
+
+## Publication status
+
+The completed video and supporting materials are ready for distribution. The Devpost draft has its name, tagline, story, technology tags and product/repository/testing links saved. YouTube upload, Devpost image/video upload and final submission are still pending. Native desktop control repeatedly returned `noWindowsAvailable`, capture failures and disabled Upload controls even after file selection. No public YouTube playback or submitted Devpost entry is claimed. This is an access blocker, not an untested application feature.
 
 ## Limits of this evidence
 
-Automated accessibility checks cover the tested routes and dialogs; they are not a complete accessibility certification. Mobile runs use Chromium emulation rather than physical devices. A checksum detects changed bytes against a trusted digest, not the truth of a source. A working cloud instance and covered tests do not establish capacity, field reliability, customer willingness to pay, or aviation approval.
+Automated accessibility findings cover the inspected routes and states. They are not complete accessibility certification. Mobile browser runs use Chromium device emulation, not physical-device testing. Content hashes and an embedded manifest do not authenticate an original permit or authorize flight.
 
-The release supports one owner per workspace. Shared-team identity, self-service account recovery, billing, independently verified backup recovery, external security review and an operator pilot remain outside the completed acceptance record. Docker deployment instructions are supplied, but no successful container deployment is claimed.
+The release has one owner per workspace, with saved-key self-service recovery. Losing both password and key has no automated recovery path. Shared-team roles, verified organization identity, billing, independent security review, customer backup/restore acceptance and an operator pilot remain outside this completed software acceptance record. Public-signup abuse and cumulative storage growth need operating controls before broader scale. Docker instructions are supplied; no successful container deployment is claimed.
+
+The demonstration's jobs and private records are synthetic. The $4,800 figure is illustrative planned work affected by a simulated notice change. It is not measured savings, earned revenue, a prevented incident or customer proof.

@@ -59,6 +59,17 @@ bash scripts/deploy-firebase.sh
 
 The script builds the frontend, runs the gateway tests, deploys only `deploy/firebase/proxy` to Cloud Run, publishes only this Hosting site's `dist` files, and runs an authenticated smoke test against the Firebase URL. It does not create billing links, provision infrastructure, or change other Hosting sites. The smoke test creates a synthetic account and test evidence, then verifies logout and recovery behavior without printing credentials.
 
+For a frontend-only release, keep the existing gateway and durable backend revisions:
+
+```sh
+npm run build
+npm exec --yes --package=firebase-tools@15.30.2 -- firebase deploy \
+  --only hosting --project=gen-lang-client-0444960702 \
+  --config=firebase.json --non-interactive
+```
+
+Verify the published assets and changed interface. Record the frontend commit separately from the unchanged backend version. This command updates the Firebase site only; it does not change the original Cloudflare site's static assets.
+
 Optional script overrides are `FIREBASE_PROJECT`, `FIREBASE_REGION`, `FIREBASE_GATEWAY_SERVICE`, `FIREBASE_GATEWAY_ACCOUNT`, and `FIREBASE_GATEWAY_SECRET_VERSION`. If moving to another project, site, service, or region, also update `.firebaserc`, `firebase.json`, and the script's public origins and final smoke URL. Defaults intentionally target the deployed application.
 
 `firebase.json` routes `/api` and `/api/**` before the SPA fallback. Its `pinTag: true` pins the Cloud Run revision to the Hosting release. Firebase dynamic requests have a 60-second limit; longer capture work must fail visibly or move to a job workflow. See [Hosting with Cloud Run](https://firebase.google.com/docs/hosting/cloud-run) and [rewrite configuration](https://firebase.google.com/docs/hosting/full-config).

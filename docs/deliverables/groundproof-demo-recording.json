@@ -1,0 +1,25 @@
+{
+  "recordedAt": "2026-09-23T11:26:36.976Z",
+  "url": "https://groundproof-flight.web.app",
+  "targetDurationSeconds": 210,
+  "width": 1440,
+  "height": 900,
+  "narrationWords": 404,
+  "scenarios": "Fictional demo jobs and source changes; genuine live Anakin Boston source capture.",
+  "liveCapture": {
+    "provider": "anakin",
+    "source": "https://www.boston.gov/departments/tourism-sports-and-entertainment/how-apply-film-boston",
+    "capturedAt": "2026-09-23T11:25:54.529Z",
+    "hash": "f532cd93e6dd405cd6edac8385735bd5321d2685e11fcaf967e83d285ea5a483",
+    "characters": 5930,
+    "verifiedAfterMs": 7722,
+    "durationScope": "User click to recorded snapshot verification, including the planned on-screen pause; not provider latency.",
+    "application": "https://groundproof-flight.web.app",
+    "success": true
+  },
+  "completedMissionId": "029034b3-0b2e-40dc-a3f7-8de4eeaf8632",
+  "exportManifestHash": "40af31a222c6ee6d020a7a6275c9304736a12b669257a69950f6c3d37552b375",
+  "video": "groundproof-demo-silent.mp4",
+  "captions": "groundproof-demo-captions.srt",
+  "applicationErrors": []
+}

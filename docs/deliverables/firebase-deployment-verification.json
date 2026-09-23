@@ -1,0 +1,181 @@
+{
+  "scope": "Hosted HTTP/browser functional baseline plus the final CSS-only Firebase landing refinement. Synthetic evidence only; no flight or customer-pilot validation.",
+  "applicationCommit": "a64ac2c6d7510c6ccb54d6b064a4ef63c23e680e",
+  "primaryUrl": "https://groundproof-flight.web.app",
+  "firebase": {
+    "project": "gen-lang-client-0444960702",
+    "site": "groundproof-flight",
+    "version": "3967c6203a6b3502",
+    "release": "1790162457483000",
+    "releasedAt": "2026-09-23T11:20:57.483Z"
+  },
+  "gateway": {
+    "service": "groundproof-api",
+    "region": "us-central1",
+    "revision": "groundproof-api-00001-8jq",
+    "minInstances": 0,
+    "maxInstances": 1,
+    "memoryMiB": 128,
+    "concurrency": 40
+  },
+  "worker": {
+    "version": "4322a99f-ed8d-4620-8125-c7ad84eec57b",
+    "databaseSchema": 5,
+    "durableObjectName": "groundproof-pilot-v1",
+    "existingDatabasePreserved": true
+  },
+  "unitChecks": {
+    "workerCompatibleTests": 162,
+    "gatewayHttpTests": 3
+  },
+  "firebaseHttp": {
+    "base": "https://groundproof-flight.web.app",
+    "checkedAt": "2026-09-23T11:08:51.785Z",
+    "passed": 43,
+    "registration": true,
+    "verified": [
+      "real Fastify HTTP bridge",
+      "Durable SQL workflow",
+      "cookie flags",
+      "origin enforcement",
+      "hash-bound approval",
+      "tenant isolation",
+      "JSON export",
+      "offline packet integrity verifier",
+      "rule lab",
+      "operator-record revisions",
+      "source history",
+      "session revocation",
+      "Firebase __session translation",
+      "separate verified-account request limits",
+      "private API cache control",
+      "password change",
+      "single-use account recovery"
+    ]
+  },
+  "cloudflareHttp": {
+    "base": "https://groundproof.groundproof.workers.dev",
+    "checkedAt": "2026-09-23T11:07:45.938Z",
+    "passed": 41,
+    "registration": true,
+    "verified": [
+      "real Fastify HTTP bridge",
+      "Durable SQL workflow",
+      "cookie flags",
+      "origin enforcement",
+      "hash-bound approval",
+      "tenant isolation",
+      "JSON export",
+      "offline packet integrity verifier",
+      "rule lab",
+      "operator-record revisions",
+      "source history",
+      "session revocation",
+      "password change",
+      "single-use account recovery"
+    ]
+  },
+  "static": {
+    "checkedAt": "2026-09-23T11:21:13.197Z",
+    "base": "https://groundproof-flight.web.app",
+    "indexMatchesBuild": true,
+    "indexSha256": "a23ddb15b430c159db8133889dc2040b12c8d8036e7d3fea1d4573b3c117cb57",
+    "checks": [
+      {
+        "path": "/assets/index-Cji5rRL9.js",
+        "status": 200,
+        "cacheControl": "public, max-age=31536000, immutable",
+        "matchesBuild": true,
+        "sha256": "ccbf46d324b761dcd3d8bd17608d4532fb41355fe95eeecf3e3f6c2c154f897f"
+      },
+      {
+        "path": "/assets/index-FE3SOBt8.css",
+        "status": 200,
+        "cacheControl": "public, max-age=31536000, immutable",
+        "matchesBuild": true,
+        "sha256": "f8487c5afa640cfc039e8091d77e142761bd76e65c1eff43b37446ce4ef30bd5"
+      },
+      {
+        "path": "/social-cover.png",
+        "status": 200,
+        "contentType": "image/png"
+      },
+      {
+        "path": "/robots.txt",
+        "status": 200,
+        "contentType": "text/plain; charset=utf-8"
+      },
+      {
+        "path": "/workspace",
+        "status": 200,
+        "contentType": "text/html; charset=utf-8"
+      }
+    ]
+  },
+  "edgeBehavior": "Malformed percent encoding is rejected with 400 by Firebase before the application; that empty-data edge response cannot carry application cache headers.",
+  "browser": {
+    "passed": 16,
+    "failed": 0,
+    "retries": 0,
+    "skipped": 0,
+    "axeSeriousCritical": 0,
+    "completedAt": "2026-09-23T11:15:22.498317Z",
+    "durationSeconds": 347.215317,
+    "report": "browser-verification.json",
+    "testedApplicationCommit": "c277bbdbd32eccb93d23e70531a3cb9d1bd0ec66"
+  },
+  "backendApplicationCommit": "c277bbdbd32eccb93d23e70531a3cb9d1bd0ec66",
+  "functionalBaseline": {
+    "applicationCommit": "c277bbdbd32eccb93d23e70531a3cb9d1bd0ec66",
+    "firebaseVersion": "c403cb6654b8b46e"
+  },
+  "landingVisual": {
+    "base": "https://groundproof-flight.web.app",
+    "checkedAt": "2026-09-23T11:22:20.185Z",
+    "applicationCommit": "a64ac2c6d7510c6ccb54d6b064a4ef63c23e680e",
+    "widths": [
+      {
+        "width": 320,
+        "footerClipped": false,
+        "overlaps": [0, 0, 0],
+        "cardOverlaps": [0, 0, 0],
+        "overflow": 0,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "footerClipped": false,
+        "overlaps": [0, 0, 0],
+        "cardOverlaps": [0, 0, 0],
+        "overflow": 0,
+        "violations": []
+      },
+      {
+        "width": 768,
+        "footerClipped": false,
+        "overlaps": [0, 0, 0],
+        "cardOverlaps": [0, 0, 0],
+        "overflow": 0,
+        "violations": []
+      },
+      {
+        "width": 1024,
+        "footerClipped": false,
+        "overlaps": [0, 0, 0],
+        "cardOverlaps": [0, 0, 0],
+        "overflow": 0,
+        "violations": []
+      },
+      {
+        "width": 1440,
+        "footerClipped": false,
+        "overlaps": [0, 0, 0],
+        "cardOverlaps": [0, 0, 0],
+        "overflow": 0,
+        "violations": []
+      }
+    ],
+    "scope": "Five-width geometry, overflow and Axe checks against the final hosted CSS. Full workflow suite remains the previously recorded unchanged functional baseline."
+  },
+  "cloudflareStaticCommit": "c277bbdbd32eccb93d23e70531a3cb9d1bd0ec66"
+}

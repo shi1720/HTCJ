@@ -4,7 +4,7 @@ GroundProof uses Anakin to retrieve evidence from supported official web pages. 
 
 ## Try the deployed integration
 
-1. Open [GroundProof](https://groundproof.groundproof.workers.dev) and create a workspace or explore an isolated demo.
+1. Open [GroundProof](https://groundproof-flight.web.app) and create a workspace or explore an isolated demo.
 2. Open **Evidence library** and add a public web source. Use Boston's [filming-permit guidance](https://www.boston.gov/departments/tourism-sports-and-entertainment/how-apply-film-boston) as a reproducible public-page example. This page is an integration example, not proof of permission for any particular drone mission.
 3. Choose **Anakin** and capture the source. Inspect the actual content, timestamp, hash and provider.
 4. Review the evidence with a note. If appropriate to your own requirement model, link that source to a mission. A later changed or unsuccessful capture revokes dependent approvals.
@@ -29,6 +29,8 @@ Captured text is untrusted data. It is rendered as text, never executed, and can
 
 ## Observed proof
 
-On September 23, 2026 at 10:06:40 UTC, an authenticated Anakin capture of Boston's public filming guidance returned **5,930 characters in 2,458 ms**. The sanitized [machine-readable record](deliverables/anakin-integration-proof.json) contains the observed outcome without credentials. This is one successful request, not an uptime benchmark or customer validation. A separate actual workerd retrieval also succeeded; see [runtime verification](CLOUDFLARE-VALIDATION.md).
+The final Firebase recording captured Boston's public filming guidance through authenticated Anakin on September 23, 2026 at **11:25:54.529 UTC**, returning **5,930 characters**. The [machine-readable record](deliverables/anakin-integration-proof.json) includes the actual provider, source URL, timestamp and snapshot digest. Its 7,722 ms verification interval includes a planned screen pause and is not a provider-latency benchmark.
+
+This single successful request establishes a working integration, not uptime, source completeness or customer value. The genuine capture is separate from fictional site notices and failure drills. A separate actual workerd retrieval also succeeded; see [runtime verification](CLOUDFLARE-VALIDATION.md).
 
 Provider credits, prices and access policies can change. Check the dashboard before increasing monitoring frequency. GroundProof's daily ceiling limits attempted calls; it is not a guarantee of a particular provider bill.

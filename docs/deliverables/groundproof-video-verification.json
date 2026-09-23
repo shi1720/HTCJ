@@ -1,0 +1,27 @@
+{
+  "verifiedAt": "2026-09-23T11:28:51.416Z",
+  "publicApplication": "https://groundproof-flight.web.app",
+  "recordedAt": "2026-09-23T11:26:36.976Z",
+  "file": "groundproof-demo-narrated.mp4",
+  "durationSeconds": 210,
+  "width": 1440,
+  "height": 1080,
+  "videoCodec": "h264",
+  "audioCodec": "aac",
+  "sampleRate": "48000",
+  "integratedLoudnessLUFS": -16.68,
+  "truePeakDBTP": -1.43,
+  "captionMethod": "Whisper word timestamps aligned to actual narration; burned into a reserved band below real product footage.",
+  "voiceDisclosure": "AI-generated OpenAI cedar narrator; not a voice clone.",
+  "browserErrors": [],
+  "narrationWords": 404,
+  "simulation": "Six fictional jobs and site-notice drills; separate genuine live Anakin Boston capture.",
+  "visualReview": {
+    "passed": true,
+    "reviewedAt": "2026-09-23T11:30:02.454714+00:00",
+    "method": "Nine-frame storyboard and full-resolution frames at 80, 178 and 200 seconds; all eight recognized narration segments compared with the intended script.",
+    "findings": "Readable captions in a separate band; no covered product controls, leaked credentials, clipping, or provider substitution. Fictional notice comparison and genuine Anakin content are distinct.",
+    "captionCues": 44
+  },
+  "speechCheck": "All eight speech transcripts agree with the intended claims, names and monetary amounts. Punctuation and currency typography restored using exact character-span alignment to actual word timestamps."
+}

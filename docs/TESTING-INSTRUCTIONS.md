@@ -32,6 +32,12 @@ npm run verify:packet -- /absolute/path/to/downloaded-decision-packet.json
 
 The verifier checks the packet's recorded content and evidence bindings. It does not authenticate an external permission document or authorize a flight.
 
+An embedded checksum can be recomputed by someone who edits a packet. To compare against a digest saved separately from a trusted source, supply that digest explicitly:
+
+```sh
+npm run verify:packet -- /absolute/path/to/downloaded-decision-packet.json --expected-hash YOUR_SEPARATELY_TRUSTED_SHA256
+```
+
 ## Scope
 
 This is operational evidence software for internal decisions. Demonstration jobs and source-change drills are fictional. Live captures are labeled separately. Proposed pricing, savings inputs, and pilot outcomes are hypotheses. The current product has one owner per workspace; shared organizational roles and customer field validation are future work.

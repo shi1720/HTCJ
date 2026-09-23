@@ -1,0 +1,209 @@
+1
+00:00:00,450 --> 00:00:02,910
+A drone can be ready while the job is not.
+
+2
+00:00:03,450 --> 00:00:05,850
+A crew arrives, but site access changed
+overnight.
+
+3
+00:00:06,490 --> 00:00:08,530
+Yesterday's approval still looks complete.
+
+4
+00:00:08,810 --> 00:00:12,450
+GroundProof, built by Shivam Gupta, connects
+each inspection job
+
+5
+00:00:12,450 --> 00:00:16,390
+to the evidence behind it and flags the jobs
+that need a fresh human decision.
+
+6
+00:00:24,450 --> 00:00:27,710
+Here are six fictional inspection jobs
+across three sites.
+
+7
+00:00:28,470 --> 00:00:31,130
+Open one job to see the access notice,
+checklist,
+
+8
+00:00:31,490 --> 00:00:33,310
+and insurance evidence it depends on.
+
+9
+00:00:33,890 --> 00:00:37,430
+GroundProof records exactly what was
+reviewed, when it was captured,
+
+10
+00:00:37,670 --> 00:00:39,450
+and which version the person approved.
+
+11
+00:00:40,210 --> 00:00:42,950
+Each sign-off has a specific set of
+supporting evidence.
+
+12
+00:00:46,450 --> 00:00:49,470
+Now, a simulated site closure changes one
+notice.
+
+13
+00:00:50,410 --> 00:00:52,590
+Exactly three jobs lose their previous
+approval.
+
+14
+00:00:53,370 --> 00:00:56,710
+Their combined planned job value is $4,800
+in this example.
+
+15
+00:00:57,550 --> 00:01:00,770
+That is the work affected by the change, not
+a savings claim.
+
+16
+00:01:01,330 --> 00:01:03,570
+The other three jobs keep their own evidence
+state.
+
+17
+00:01:09,450 --> 00:01:11,910
+An old sign-off cannot be reused.
+
+18
+00:01:12,610 --> 00:01:15,190
+The coordinator sees the earlier notice
+beside the current one,
+
+19
+00:01:16,070 --> 00:01:18,370
+explains the decision, and keeps the jobs on
+hold.
+
+20
+00:01:19,230 --> 00:01:23,410
+Missing, expired, blocked, or unavailable
+evidence also prevents sign-off.
+
+21
+00:01:23,990 --> 00:01:25,770
+These checks follow explicit rules.
+
+22
+00:01:26,410 --> 00:01:29,390
+A language model does not decide whether an
+aircraft may fly.
+
+23
+00:01:34,450 --> 00:01:37,870
+Next, restore the notice and accept the
+current evidence.
+
+24
+00:01:38,590 --> 00:01:41,850
+Notice what does not happen. The old mission
+approval stays revoked.
+
+25
+00:01:42,410 --> 00:01:45,970
+The coordinator must separately review and
+sign off this job again.
+
+26
+00:01:46,530 --> 00:01:49,990
+The audit records each step.
+Operator-supplied permission records
+
+27
+00:01:49,990 --> 00:01:53,710
+can also have an expiry date, checked
+against the planned job time.
+
+28
+00:02:03,450 --> 00:02:07,910
+The decision packet preserves the exact
+evidence behind that fresh sign-off.
+
+29
+00:02:08,630 --> 00:02:12,050
+It includes an integrity check that can be
+verified outside the app.
+
+30
+00:02:12,510 --> 00:02:15,910
+That checks the recorded content, not
+whether a document is genuine.
+
+31
+00:02:16,490 --> 00:02:18,390
+Now, a source fails.
+
+32
+00:02:19,150 --> 00:02:20,650
+GroundProof keeps the last
+
+33
+00:02:20,650 --> 00:02:24,110
+snapshot visible for investigation and holds
+the dependent work.
+
+34
+00:02:33,450 --> 00:02:38,590
+The Proof Lab runs 15 scenarios through the
+same evidence rules used by the application.
+
+35
+00:02:39,310 --> 00:02:44,290
+Here are the actual results. Now we capture
+an official Boston page through Anakin.
+
+36
+00:02:45,050 --> 00:02:48,690
+The source text, provider, time, and hash
+are recorded.
+
+37
+00:02:49,390 --> 00:02:53,110
+This is a real web capture, separate from
+the fictional site closure drill.
+
+38
+00:03:04,450 --> 00:03:07,250
+Our first target customer is a drone
+inspection
+
+39
+00:03:07,250 --> 00:03:10,470
+operator coordinating repeat work across
+multiple sites.
+
+40
+00:03:11,350 --> 00:03:13,710
+We propose $199 per month,
+
+41
+00:03:13,790 --> 00:03:17,710
+then test that price against actual review
+time and useful alerts.
+
+42
+00:03:18,590 --> 00:03:21,450
+We seek one operator for a four-week shadow
+pilot.
+
+43
+00:03:22,190 --> 00:03:25,310
+GroundProof keeps internal approvals tied to
+current evidence.
+
+44
+00:03:26,030 --> 00:03:28,090
+Flight decisions stay with the remote pilot.

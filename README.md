@@ -118,6 +118,7 @@ A working, tested release is not proof of field reliability or enterprise readin
 
 ## Submission package
 
+- [Completed narrated demo and release files](https://github.com/shi1720/HTCJ/releases/tag/v1.1.0)
 - [Release verification](docs/RELEASE-VERIFICATION.md)
 - [Project story](docs/PROJECT-STORY.md)
 - [Judging and testing instructions](docs/TESTING-INSTRUCTIONS.md)

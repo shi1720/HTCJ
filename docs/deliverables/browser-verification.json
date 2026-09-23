@@ -1,152 +1,227 @@
 {
   "product": "GroundProof",
-  "verifiedAt": "2026-09-23T10:25:47.595227+00:00",
-  "browser": "Chromium desktop1440x1000 and Pixel7 mobile emulation",
+  "verifiedAt": "2026-09-23T11:15:37.676544+00:00",
+  "browser": "Chromium desktop 1440x1000 and Pixel 7 mobile emulation",
+  "applicationCommit": "c277bbdbd32eccb93d23e70531a3cb9d1bd0ec66",
   "local": {
-    "url": "http://localhost:3001",
-    "passed": 8,
-    "total": 8,
-    "durationMs": 142937.15099999998,
+    "url": "http://localhost:3002",
+    "passed": 16,
+    "total": 16,
+    "durationMs": 252287.19999999998,
+    "note": "Production build: 14 baseline cases, followed by 2 focused cases after the final stale-session guard. Hosted suite tests all 16 together.",
     "workflows": [
       {
         "project": "desktop-chromium",
         "workflow": "closure \u2192 source hold \u2192 recovery review \u2192 fresh signoff \u2192 verifiable export",
         "status": "passed",
-        "durationMs": 12396
+        "durationMs": 12449
       },
       {
         "project": "desktop-chromium",
         "workflow": "new account \u2192 real source capture \u2192 mission review \u2192 logout and login persistence",
         "status": "passed",
-        "durationMs": 14347
+        "durationMs": 14462
       },
       {
         "project": "desktop-chromium",
         "workflow": "independent demo isolation, keyboard dialog and responsive containment",
         "status": "passed",
-        "durationMs": 2793
+        "durationMs": 2944
       },
       {
         "project": "desktop-chromium",
         "workflow": "operator record \u2192 expiry blocks planned job \u2192 version update \u2192 separate review and approval",
         "status": "passed",
-        "durationMs": 10003
+        "durationMs": 9943
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "review desk keeps the next signoffs visible, with searchable evidence and archived versions",
+        "status": "passed",
+        "durationMs": 6239
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "recovery key, password change, key rotation and account recovery work end to end",
+        "status": "passed",
+        "durationMs": 5973
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "background refresh preserves typed review focus and mobile navigation stays keyboard-contained",
+        "status": "passed",
+        "durationMs": 30835
       },
       {
         "project": "mobile-chromium",
         "workflow": "closure \u2192 source hold \u2192 recovery review \u2192 fresh signoff \u2192 verifiable export",
         "status": "passed",
-        "durationMs": 26203
+        "durationMs": 26674
       },
       {
         "project": "mobile-chromium",
         "workflow": "new account \u2192 real source capture \u2192 mission review \u2192 logout and login persistence",
         "status": "passed",
-        "durationMs": 41330
+        "durationMs": 41614
       },
       {
         "project": "mobile-chromium",
         "workflow": "independent demo isolation, keyboard dialog and responsive containment",
         "status": "passed",
-        "durationMs": 2838
+        "durationMs": 2805
       },
       {
         "project": "mobile-chromium",
         "workflow": "operator record \u2192 expiry blocks planned job \u2192 version update \u2192 separate review and approval",
         "status": "passed",
-        "durationMs": 31349
+        "durationMs": 37619
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "review desk keeps the next signoffs visible, with searchable evidence and archived versions",
+        "status": "passed",
+        "durationMs": 14443
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "recovery key, password change, key rotation and account recovery work end to end",
+        "status": "passed",
+        "durationMs": 5779
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "background refresh preserves typed review focus and mobile navigation stays keyboard-contained",
+        "status": "passed",
+        "durationMs": 30991
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "a delayed error from a previous session cannot contaminate a new workspace",
+        "status": "passed",
+        "durationMs": 3356
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "a delayed error from a previous session cannot contaminate a new workspace",
+        "status": "passed",
+        "durationMs": 3192
       }
     ]
   },
-  "deployed": {
-    "url": "https://groundproof.groundproof.workers.dev",
-    "passed": 8,
-    "total": 8,
-    "durationMs": 154500.701,
+  "public": {
+    "passed": 16,
+    "total": 16,
+    "durationMs": 347215.31700000004,
     "workflows": [
       {
         "project": "desktop-chromium",
         "workflow": "closure \u2192 source hold \u2192 recovery review \u2192 fresh signoff \u2192 verifiable export",
         "status": "passed",
-        "durationMs": 14494
+        "durationMs": 21668
       },
       {
         "project": "desktop-chromium",
         "workflow": "new account \u2192 real source capture \u2192 mission review \u2192 logout and login persistence",
         "status": "passed",
-        "durationMs": 15464
+        "durationMs": 24897
       },
       {
         "project": "desktop-chromium",
         "workflow": "independent demo isolation, keyboard dialog and responsive containment",
         "status": "passed",
-        "durationMs": 4448
+        "durationMs": 8880
       },
       {
         "project": "desktop-chromium",
         "workflow": "operator record \u2192 expiry blocks planned job \u2192 version update \u2192 separate review and approval",
         "status": "passed",
-        "durationMs": 11355
+        "durationMs": 19624
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "review desk keeps the next signoffs visible, with searchable evidence and archived versions",
+        "status": "passed",
+        "durationMs": 11477
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "recovery key, password change, key rotation and account recovery work end to end",
+        "status": "passed",
+        "durationMs": 10319
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "background refresh preserves typed review focus and mobile navigation stays keyboard-contained",
+        "status": "passed",
+        "durationMs": 32854
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "a delayed error from a previous session cannot contaminate a new workspace",
+        "status": "passed",
+        "durationMs": 5964
       },
       {
         "project": "mobile-chromium",
         "workflow": "closure \u2192 source hold \u2192 recovery review \u2192 fresh signoff \u2192 verifiable export",
         "status": "passed",
-        "durationMs": 27344
+        "durationMs": 34717
       },
       {
         "project": "mobile-chromium",
         "workflow": "new account \u2192 real source capture \u2192 mission review \u2192 logout and login persistence",
         "status": "passed",
-        "durationMs": 42634
+        "durationMs": 52798
       },
       {
         "project": "mobile-chromium",
         "workflow": "independent demo isolation, keyboard dialog and responsive containment",
         "status": "passed",
-        "durationMs": 4508
+        "durationMs": 8372
       },
       {
         "project": "mobile-chromium",
         "workflow": "operator record \u2192 expiry blocks planned job \u2192 version update \u2192 separate review and approval",
         "status": "passed",
-        "durationMs": 32693
+        "durationMs": 46490
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "review desk keeps the next signoffs visible, with searchable evidence and archived versions",
+        "status": "passed",
+        "durationMs": 18654
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "recovery key, password change, key rotation and account recovery work end to end",
+        "status": "passed",
+        "durationMs": 9921
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "background refresh preserves typed review focus and mobile navigation stays keyboard-contained",
+        "status": "passed",
+        "durationMs": 32982
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "a delayed error from a previous session cannot contaminate a new workspace",
+        "status": "passed",
+        "durationMs": 6266
       }
-    ]
+    ],
+    "url": "https://groundproof-flight.web.app"
   },
   "accessibility": {
-    "seriousViolations": 0,
-    "criticalViolations": 0,
-    "auditedSurfaces": [
-      "Landing",
-      "Operations overview",
-      "Mission board",
-      "Evidence library",
-      "Evidence review dialog",
-      "Proof lab",
-      "Audit trail",
-      "Workspace settings",
-      "Operator record form"
-    ],
-    "ruleTags": [
-      "wcag2a",
-      "wcag2aa",
-      "wcag21a",
-      "wcag21aa"
-    ],
-    "scope": "Automated Axe audit; not a full accessibility certification."
+    "seriousOrCriticalViolations": 0,
+    "scope": "Axe wcag2a/wcag2aa/wcag21a/wcag21aa on landing, operations overview, mission board, evidence library and review, lab, forms, expanded history, recovery-key onboarding and account settings. Automated checks are not full conformance certification."
   },
-  "liveData": "Each registration workflow captured https://www.faa.gov/uas through the Direct provider. Demo mission notices are explicitly fictional. Anakin capture is covered separately by the recorded demonstration.",
+  "faultInjection": "One test intentionally delays and injects a 401 state response from a previous session to test session isolation. Other workflow calls use the real API.",
   "screenshots": [
     "landing.png",
     "groundproof-overview.png",
     "groundproof-mission-board.png",
     "source-review.png",
     "mobile.png"
-  ],
-  "limitations": [
-    "Browser emulation does not replace testing on physical mobile devices.",
-    "No flight operations or regulatory authorization were tested.",
-    "Production API quotas remained enabled. The test client paced requests to stay within those limits."
   ]
 }

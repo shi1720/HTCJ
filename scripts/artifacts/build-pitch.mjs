@@ -192,7 +192,7 @@ async function screenshot(s, filename, alt) {
   );
   text(
     s,
-    "Operational evidence for drone inspection teams",
+    "Operational evidence for drone inspection coordinators",
     72,
     431,
     1090,
@@ -299,7 +299,7 @@ async function screenshot(s, filename, alt) {
   }
   note(
     s,
-    "Product screenshot shows the actual application with fictional demo data. It may contain illustrative booked values, which are not earned revenue or savings. Source capture, source review, and mission approval are distinct operations.",
+    "Product screenshot shows the actual application with fictional demo data. It may contain illustrative planned values, which are not earned revenue or savings. Source capture, source review, and mission approval are distinct operations.",
   );
 }
 // 4. Change invalidation evidence.
@@ -318,7 +318,7 @@ async function screenshot(s, filename, alt) {
   text(s, "$4,800", 68, 502, 380, 68, 44, C.ink, true);
   text(
     s,
-    "illustrative booked value\naffected, not savings",
+    "illustrative planned value\naffected, not savings",
     68,
     574,
     380,
@@ -346,7 +346,7 @@ async function screenshot(s, filename, alt) {
   }
   note(
     s,
-    "The demo dataset has six jobs, three sites and five sources. The Harbor Works fixture affects the first three jobs with a combined illustrative booked value of $4,800. This is a controlled simulation. It demonstrates dependency propagation and version-bound approval, not financial loss avoided.",
+    "The demo dataset has six jobs, three sites and five sources. The Harbor Works fixture affects the first three jobs with a combined illustrative planned value of $4,800. This is a controlled simulation. It demonstrates dependency propagation and version-bound approval, not financial loss avoided.",
   );
 }
 // 5. Core technical proof.
@@ -381,7 +381,7 @@ async function screenshot(s, filename, alt) {
   );
   note(
     s,
-    "The server checks source hashes and review decisions, tenant ownership, timestamps, and approval inputs. This is operational evidence administration, not flight authorization. The rule lab executes authored test scenarios. Exact test counts belong in the release validation report and live demonstration.",
+    "The server checks source hashes and review decisions, tenant ownership, timestamps, exact evidence coverage and the current mission revision. This is operational evidence administration, not flight authorization. The rule lab executes authored test scenarios. Exact test counts belong in the release validation report and live demonstration.",
   );
 }
 // 6. Evidence and boundaries.
@@ -390,7 +390,7 @@ async function screenshot(s, filename, alt) {
   text(s, "Working software", 68, 251, 510, 59, 35, C.lime, true);
   text(
     s,
-    "Accounts and isolated workspaces\nAuthenticated Anakin capture\nScheduled source monitoring\nOperator-supplied records\nVersion-bound review and export",
+    "Accounts with saved recovery keys\nAuthenticated Anakin capture\nScheduled source monitoring\nOperator records and capture history\nVersion-bound signoff and export",
     68,
     332,
     527,
@@ -401,7 +401,7 @@ async function screenshot(s, filename, alt) {
   text(s, "Still to validate", 690, 251, 510, 59, 35, C.lime, true);
   text(
     s,
-    "Operator time savings\nSource coverage in real workflows\nWillingness to pay\nDeployment-specific readiness",
+    "Operator time savings\nSource coverage in real workflows\nWillingness to pay\nOperational backup and restore",
     690,
     332,
     512,
@@ -411,7 +411,7 @@ async function screenshot(s, filename, alt) {
   );
   text(
     s,
-    "Simulation proves logic. A shadow pilot tests usefulness.",
+    "Covered tests demonstrate behavior. A pilot tests usefulness.",
     68,
     611,
     1130,
@@ -421,7 +421,7 @@ async function screenshot(s, filename, alt) {
   );
   note(
     s,
-    "Authenticated Anakin retrieval verified September 23, 2026 at 10:06:40 UTC: Boston public filming guidance, 5,930 characters in 2,458 ms. Evidence file docs/deliverables/anakin-integration-proof.json. This single call is not an availability or completeness benchmark. No customer, pilot partner, revenue, flight performance, certification, or prevented incident is claimed. Evidence packet hashes show content consistency. They do not establish source truth, a genuine permit, or legal compliance. GroundProof leaves flight decisions with the operator and remote pilot.",
+    "Authenticated Anakin retrieval verified September 23, 2026 at 10:06:40 UTC: Boston public filming guidance, 5,930 characters in 2,458 ms. Evidence file docs/deliverables/anakin-integration-proof.json. This single call is not an availability or completeness benchmark. The hosted frontend uses Firebase Hosting with a Cloud Run API gateway to a Cloudflare Worker and durable SQLite database. Accounts support single-use saved recovery keys, password changes and session revocation. Retained source captures have paginated history and content-integrity checks. No customer, pilot partner, revenue, flight performance, certification, or prevented incident is claimed. Evidence packet hashes show content consistency. They do not establish source truth, a genuine permit, or legal compliance. GroundProof leaves flight decisions with the operator and remote pilot.",
   );
 }
 // 7. Differentiation.
@@ -460,15 +460,7 @@ async function screenshot(s, filename, alt) {
 {
   const s = slide("A subscription the pilot must earn");
   text(s, "$199 / month", 68, 226, 700, 90, 59, C.green, true);
-  text(
-    s,
-    "Proposed future plan for 25 sites and five users",
-    68,
-    327,
-    1130,
-    51,
-    27,
-  );
+  text(s, "Proposed price for a coordinator workspace", 68, 327, 1130, 51, 27);
   table(
     s,
     [
@@ -492,7 +484,7 @@ async function screenshot(s, filename, alt) {
   );
   note(
     s,
-    "All commercial numbers are hypotheses. Exact values $266.67 and $133.33 rounded to nearest dollar. Time capacity is not guaranteed payroll savings. Planning direct-cost case is $19 Anakin + $25 infrastructure + $20 support = $64 monthly cost, before other expenses. Anakin pricing inspected September 23, 2026 at https://anakin.io/pricing . 25 sites x 2 sources x 2 daily checks x 30 days = 3,000 basic captures, within the stated 5,000 Pro credits. Scheduled source monitoring and protective supplier budgets are implemented. Commercial billing and multi-user membership remain future work. The initial pilot uses one named coordinator account.",
+    "All commercial numbers are hypotheses. Exact values $266.67 and $133.33 rounded to nearest dollar. Time capacity is not guaranteed payroll savings. Planning direct-cost case is $19 Anakin + $25 infrastructure + $20 support = $64 monthly cost, before other expenses. Anakin pricing inspected September 23, 2026 at https://anakin.io/pricing . 25 sites x 2 sources x 2 daily checks x 30 days = 3,000 basic captures, within the stated 5,000 Pro credits. Scheduled source monitoring and protective supplier budgets are implemented. Commercial billing and multi-user membership remain future work. The current product and initial pilot use one named coordinator account. The 25-site/five-user plan is future scope, not available team membership. A higher-volume paid deployment would require adjusting supplier budgets and verifying actual cost.",
   );
 }
 // 9. Pilot.
@@ -523,7 +515,7 @@ async function screenshot(s, filename, alt) {
   );
   note(
     s,
-    "Pilot proposal only. Target 5-10 recurring sites and at least 30 job reviews if available. These are feasibility targets, not a statistically powered study. Maintain operator dispatch procedures throughout. Stop for an approval-control bypass or access-control defect. Full definitions and go/no-go criteria: docs/PILOT.md.",
+    "Pilot proposal only. Target 5-10 recurring sites and at least 30 job reviews if available. These are feasibility targets, not a statistically powered study. Maintain operator dispatch procedures throughout. Stop for an approval-control bypass or access-control defect. Measure total effort, including entering and maintaining private-record excerpts. Full definitions and go/no-go criteria: docs/PILOT.md.",
   );
 }
 // 10. Direct ask.
@@ -553,7 +545,7 @@ async function screenshot(s, filename, alt) {
   );
   const productLink = text(
     s,
-    "groundproof.groundproof.workers.dev",
+    "groundproof-flight.web.app",
     68,
     625,
     1060,
@@ -561,8 +553,8 @@ async function screenshot(s, filename, alt) {
     25,
     "#BED0C8",
   );
-  productLink.text.get("groundproof.groundproof.workers.dev").link = {
-    uri: "https://groundproof.groundproof.workers.dev",
+  productLink.text.get("groundproof-flight.web.app").link = {
+    uri: "https://groundproof-flight.web.app",
     isExternal: true,
   };
   note(

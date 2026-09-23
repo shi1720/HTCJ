@@ -37,3 +37,18 @@ node scripts/artifacts/build-pitch.mjs
 To reproduce the product screenshots in the slides, place `groundproof-mission-board.png` and `source-review.png` in the selected output root's `outputs/` folder. Copies are supplied under `docs/deliverables/`. The builder uses text fallbacks if those images are absent.
 
 The builder exports editable native slide text and tables, validates the package, and renders review images under `work/artifacts/pitch/`. Its default final file is `outputs/groundproof-pitch.pptx`. The finalizer refuses to overwrite an existing final file, so set a new filename when rebuilding, for example `PITCH_FILENAME=groundproof-pitch-revised.pptx node scripts/artifacts/build-pitch.mjs`. Inspect the rendered slides before replacing the delivered deck.
+
+## Narrated product video and release package
+
+Install FFmpeg and the Playwright Chromium browser. The full video builder records genuine product actions, generates a disclosed OpenAI narrator, aligns captions to the actual speech and verifies codecs, duration and loudness. Anakin must be configured on the target server for the genuine capture scene. No fixture is substituted for a failed capture.
+
+```sh
+export DEMO_URL=https://groundproof-flight.web.app
+export DEMO_OUTPUT_DIR=/absolute/path/to/deliverables
+export OPENAI_API_KEY_FILE=/private/path/outside/the/repository
+node scripts/build-demo.mjs
+```
+
+Narration and transcription responses are cached under ignored `work/media/`. Use `--use-recording` to refine captions without another live capture. Inspect the resulting storyboard, full-resolution frames and speech transcripts before publication. Set the generated verification record's `visualReview` to an object with `passed: true`, `reviewedAt`, and the actual review method only after that review succeeds.
+
+After committing the final source, `DEMO_OUTPUT_DIR=/absolute/path/to/deliverables node scripts/package-release.mjs` copies the specified public documents, exports Git HEAD, records the release identity, hashes every listed artifact and creates the submission ZIP. It reads an explicit file allowlist and does not collect credentials or environment files. Set `YOUTUBE_URL` and `DEVPOST_SUBMITTED=true` only after those outcomes are actually verified.

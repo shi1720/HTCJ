@@ -11,7 +11,14 @@ let cookie = "",
   passed = 0;
 async function request(
   path,
-  { method = "GET", body, session = cookie, origin = base, status = 200 } = {},
+  {
+    method = "GET",
+    body,
+    session = cookie,
+    origin = base,
+    status = 200,
+    edgeReject = false,
+  } = {},
 ) {
   const response = await fetch(base + path, {
     method,
@@ -24,7 +31,7 @@ async function request(
     redirect: "manual",
   });
   const text = await response.text();
-  if (new URL(base).hostname.endsWith(".web.app"))
+  if (new URL(base).hostname.endsWith(".web.app") && !edgeReject)
     assert.match(
       response.headers.get("cache-control") || "",
       /private.*no-store/,
@@ -159,7 +166,9 @@ await request("/api/sources", {
   },
   status: 400,
 });
-await request("/api/missions/%ZZ/export", { status: 400 });
+// Firebase rejects malformed percent encoding at its edge, before our gateway
+// can add application cache headers. The response contains no application data.
+await request("/api/missions/%ZZ/export", { status: 400, edgeReject: true });
 await request("/api/not-a-route", { status: 404 });
 const supplied = {
   content:

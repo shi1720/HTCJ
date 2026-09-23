@@ -39,6 +39,64 @@ function wrap(words) {
 }
 const cues = [],
   checks = [];
+// Whisper's word array omits punctuation and can split "$4,800" or "sign-off".
+// Restore the checked transcript's typography by matching exact character spans.
+// Refuse any lexical mismatch instead of inventing alignment for different speech.
+function punctuatedWords(result) {
+  const normalize = (word) => word.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+  let cursor = 0;
+  const timed = result.words.map((word) => {
+    const from = cursor;
+    cursor += normalize(word.word).length;
+    return { ...word, from, to: cursor };
+  });
+  const words = result.text.trim().split(/\s+/);
+  if (
+    words.map(normalize).join("") !==
+    timed.map((word) => normalize(word.word)).join("")
+  )
+    throw new Error(
+      "Transcript text and timestamp words differ; review before captioning.",
+    );
+  cursor = 0;
+  return words.map((word) => {
+    const from = cursor;
+    cursor += normalize(word).length;
+    const spans = timed.filter((item) => item.to > from && item.from < cursor);
+    if (!spans.length)
+      throw new Error("Transcript contains an unaligned token.");
+    return { word, start: spans[0].start, end: spans.at(-1).end };
+  });
+}
+function readableGroups(words) {
+  const best = Array(words.length + 1).fill(null);
+  best[words.length] = { cost: 0, groups: [] };
+  for (let i = words.length - 1; i >= 0; i--) {
+    for (let j = i + 1; j <= words.length; j++) {
+      const group = words.slice(i, j);
+      const text = group.map((word) => word.word).join(" ");
+      const duration = group.at(-1).end - group[0].start;
+      if (wrap(group.map((word) => word.word)).length > 2 || duration > 6)
+        break;
+      if (!best[j]) continue;
+      const boundary = /[.!?]$/.test(text) ? 0 : /[,;:]$/.test(text) ? 2 : 7;
+      const sentenceBreak = /[.!?]\s/.test(text) ? 20 : 0;
+      const penalty = (duration < 1.3 ? 25 : 0) + (text.length < 22 ? 12 : 0);
+      const cost =
+        4 +
+        Math.abs(duration - 3.4) +
+        boundary +
+        penalty +
+        sentenceBreak +
+        best[j].cost;
+      if (!best[i] || cost < best[i].cost)
+        best[i] = { cost, groups: [group, ...best[j].groups] };
+    }
+  }
+  if (!best[0])
+    throw new Error("Speech cannot fit readable two-line captions.");
+  return best[0].groups;
+}
 for (const [index, scene] of report.scenes.entries()) {
   const bytes = await readFile(resolve(dir, `scene-${index + 1}.wav`));
   const hash = createHash("sha256")
@@ -78,9 +136,7 @@ for (const [index, scene] of report.scenes.entries()) {
   }
   if (!result.words?.length)
     throw new Error(`No speech timestamps for scene ${index + 1}.`);
-  let group = [];
-  function flush() {
-    if (!group.length) return;
+  for (const group of readableGroups(punctuatedWords(result))) {
     const start =
       scene.start + scene.leadSeconds + group[0].start / scene.tempo;
     const end = Math.min(
@@ -92,18 +148,7 @@ for (const [index, scene] of report.scenes.entries()) {
       end,
       text: wrap(group.map((w) => w.word.trim())).join("\n"),
     });
-    group = [];
   }
-  for (const word of result.words) {
-    if (
-      group.length &&
-      (wrap([...group, word].map((w) => w.word.trim())).length > 2 ||
-        word.end - group[0].start > 6)
-    )
-      flush();
-    group.push(word);
-  }
-  flush();
   checks.push({
     scene: index + 1,
     intended: scene.text,

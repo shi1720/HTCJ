@@ -6,7 +6,7 @@
 
 **GroundProof**
 
-**Live product:** https://groundproof.groundproof.workers.dev
+**Live product:** https://groundproof-flight.web.app
 
 **Repository:** https://github.com/shi1720/HTCJ
 
@@ -32,17 +32,17 @@ The application manages operational evidence and internal review. It does not is
 
 We built an integrated web application with accounts, isolated workspaces, sites, mission creation, source capture, opt-in scheduled monitoring, evidence review, mission approval, an audit history, and downloadable evidence bundles. Readiness comes from deterministic rules. No language model decides whether a mission can proceed through our internal workflow.
 
-The demo includes six fictional inspection jobs across three illustrative Boston-area sites. A clearly labeled simulated change to the Harbor Works access notice affects three jobs with $4,800 in combined illustrative booked value. That figure identifies the work affected by the change. It is not revenue earned, money saved, or a prediction of loss.
+The demo includes six fictional inspection jobs across three illustrative Boston-area sites. A clearly labeled simulated change to the Harbor Works access notice affects three jobs with $4,800 in combined illustrative planned job value. That figure identifies the work affected by the change. It is not revenue earned, money saved, or a prediction of loss.
 
 The proof lab executes authored rule scenarios and displays their actual results. A downloadable bundle preserves the exact evidence versions and an integrity manifest. Independent verification can reveal a changed bundle. Hashes demonstrate content integrity, not the truth of a source or regulatory acceptance.
 
-A real authenticated Anakin capture of Boston's public filming-permit guidance succeeded on September 23, 2026 at 10:06:40 UTC. It returned 5,930 characters in 2,458 milliseconds. [the integration evidence record](deliverables/anakin-integration-proof.json) records that single observed retrieval. This establishes a working integration, not source completeness or customer benefit. A separate real Direct retrieval and scheduled Cloudflare alarm captured the FAA UAS page.
+During the final Firebase recording, a real authenticated Anakin capture of Boston's public filming-permit guidance succeeded on September 23, 2026 at 11:25:54.529 UTC and returned 5,930 characters. The [integration evidence record](deliverables/anakin-integration-proof.json) preserves that retrieval's provider, timestamp, source URL and content hash. This establishes a working integration, not source completeness or customer benefit. A separate real Direct retrieval and scheduled Cloudflare alarm captured the FAA UAS page.
 
 ### 5. Demo
 
 The demonstration follows one failure and recovery: approved jobs, a simulated site closure, affected approvals invalidated, an attempted approval rejected, current evidence reviewed, a fresh mission approval, and a downloaded evidence packet. It also shows stale or unavailable evidence and the proof lab.
 
-The [v1.0.0 release](https://github.com/shi1720/HTCJ/releases/tag/v1.0.0) includes an actual 3:30 public-app recording in clean and captioned silent versions. The repository includes word-for-word narration and recording instructions in `docs/DEMO-SCRIPT.md`. Add Shivam’s recorded voice and upload the narrated video to a host accepted by Devpost before inserting the final submission video URL.
+The current submission includes a 3:30 recording of the actual Firebase-hosted application with an AI-generated voiceover, speech-aligned captions, and genuine Anakin capture. The narrator is disclosed and is not a voice clone. [The verbatim script](DEMO-SCRIPT.md) records every scene and its product actions. [Video title and description](YOUTUBE.md) and [testing instructions](TESTING-INSTRUCTIONS.md) are ready for the submission. The earlier v1.0.0 release is historical and contains silent footage.
 
 ### 6. Images and screenshots
 
@@ -50,7 +50,7 @@ Use the delivered [mission-board screenshot](deliverables/groundproof-mission-bo
 
 ### 7. Technology used
 
-TypeScript, React, Vite, Fastify, and SQLite, with a Cloudflare Workers deployment using Durable Object SQLite and static assets. Server-side sessions scope actions to the user's workspace. The application stores source snapshots and audit events and computes evidence hashes with SHA-256. Anakin's web data API provides a source-capture integration; direct retrieval is also available for supported public government sources. Source text is untrusted data. Server-side rules check evidence freshness, review state, and the approval's bound hashes.
+TypeScript, React, Vite, Fastify, and SQLite. Firebase Hosting serves the frontend at the clean public address. A Cloud Run gateway preserves same-origin sessions and forwards API requests to the Cloudflare Worker, which uses Durable Object SQLite for durable application data. Server-side sessions scope actions to the user's workspace. The application stores source snapshots and audit events and computes evidence hashes with SHA-256. Anakin's web data API provides a source-capture integration; direct retrieval is also available for supported public government sources. Source text is untrusted data. Server-side rules check evidence freshness, review state, and the approval's bound hashes.
 
 Anakin's role is retrieving web evidence where the operator has no native data feed. GroundProof adds the aviation job dependencies and review workflow. Operators can also enter a text excerpt and reference from their own records. These records are labeled as supplied by the operator, retain revision history, and require review. The product does not independently verify document authenticity. A fixture drill is a simulation; a live Anakin retrieval is identified separately.
 
@@ -78,29 +78,7 @@ One commercial drone inspection operator willing to sponsor a four-week shadow p
 
 ## Devpost narrative fields
 
-### Inspiration
-
-The future of flight depends on information that changes on the ground. A site owner can update access conditions after a coordinator has approved tomorrow's job. We focused on the gap between the approval and the evidence it depended on.
-
-### What it does
-
-GroundProof records the evidence behind each internal mission approval. It traces changes to affected jobs, holds incomplete records, and gives a human reviewer a clear path to resolve and approve current evidence.
-
-### How we built it
-
-We separated source capture from readiness evaluation. Anakin or direct retrieval captures plain text. Opt-in monitoring recaptures sources on a schedule and routes changes back to human review. A deterministic rules engine evaluates freshness and review state. The server binds approval to exact hashes and a persisted mission revision, preventing a stale client from approving a newer record or a changed appointment. Supplier budgets cap Anakin calls before they reach the provider. Isolated demo workspaces let judges run the failure scenarios themselves.
-
-### Challenges
-
-The difficult part is preserving the meaning of approval over time. Reviewing a new source must not revive an old mission signoff. A failed refresh must preserve the earlier snapshot without presenting it as current. We designed the workflow around those failure cases.
-
-### What we learned
-
-Existing drone platforms already cover broad fleet management. Our focused contribution is the dependency between changed evidence and a previous approval. A useful product needs a measurable operational benefit and an honest boundary around what it can establish.
-
-### What's next
-
-A supervised operator pilot, measured review-time comparisons, source-coverage evaluation, and integration with an existing dispatch workflow.
+The complete current story is in [PROJECT-STORY.md](PROJECT-STORY.md), with all seven requested headings. Use that file for the About the project field.
 
 ## Submission and date checklist
 
@@ -111,6 +89,6 @@ The official pages inspected September 23, 2026 contain conflicting dates. Prese
 - **October 25, 2026:** PROOF Boston one-day flagship. This precedes the portal deadline.
 - **October 28, 2026 at 05:30 GMT+5:30:** displayed portal deadline, equivalent to October 28 at 00:00 UTC and October 27 at 17:00 PDT on the [official overview](https://htcj-aviation-futures.devpost.com/).
 
-Plan to finish materials before the earliest listed date, October 8, until the organizer resolves the discrepancy. Do not assume the October 28 portal deadline qualifies a project for the October 25 stage. The rules' Prizes section asks for a 3-5 minute demo, although other sections describe video as encouraged. Prepare the video to satisfy the stricter wording. No organizer query, RSVP, or submission has been sent by this document.
+Plan to finish materials before the earliest listed date, October 8, until the organizer resolves the discrepancy. Do not assume the October 28 portal deadline qualifies a project for the October 25 stage. The rules' Prizes section asks for a 3-5 minute demo, although other sections describe video as encouraged. Prepare the video to satisfy the stricter wording. No organizer query or RSVP has been sent. The release record tracks the actual submission status.
 
 Before submitting, verify the deployed product URL and add the uploaded video URL, verify repository visibility, re-run checks at the release commit, remove any outdated screenshots, and confirm the participant's eligibility and any required disclosure against the [full rules](https://htcj-aviation-futures.devpost.com/rules). The rules require identifying significant third-party technologies and permit simulations where physical testing needs authorization. GroundProof discloses its AI-assisted development and performs no real flight operations.
