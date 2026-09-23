@@ -74,7 +74,7 @@ The recorded decision packet independently passed the verifier against the separ
 
 ## Publication status
 
-The narrated video has uploaded to YouTube as draft `0zYnjZi1MFg`, with the saved title, description, custom thumbnail, English language, AI disclosure and completed HD processing. Public visibility and separate subtitle-track persistence are not yet verified. The Devpost draft now has its cover, three captioned screenshots, demo URL, contributor credit, story, technology tags and product/repository/testing links saved. Its preview confirms all three captions, but the video embed still reports private. Final submission remains pending. YouTube Studio repeatedly failed to expose usable publishing controls, with blank page rendering and native browser capture errors. No public YouTube playback or completed Devpost submission is claimed.
+The [YouTube demo](https://youtu.be/0zYnjZi1MFg) is public. Studio confirmed Video published and Public visibility; copyright and community checks found no issues. The embedded video played on Devpost with captions enabled. The [Devpost project](https://devpost.com/software/groundproof) was submitted and returned Project submitted! Its public page identifies the challenge under SUBMITTED TO. The story, cover, three captioned screenshots, contributor credit and product/repository/testing links are saved. See [publication verification](deliverables/groundproof-publication-verification.json). The video contains burned speech-aligned captions and an automatic English track; custom SRT save persistence is not claimed.
 
 ## Limits of this evidence
 

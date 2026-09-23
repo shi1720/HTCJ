@@ -41,8 +41,8 @@ Keep the genuine Anakin capture visibly separate from the fictional closure dril
 ## Remaining release and pilot gates
 
 1. Preserve the completed Firebase acceptance record and its distinction between the functional baseline and subsequent CSS-only refinement. Keep release identities and machine-readable evidence with the submission.
-2. Completed: the narrated video, actual speech timestamps, captions, interface labels and live provider provenance passed acceptance. Uploaded: the YouTube draft and Devpost cover/gallery, with the demo link saved. Remaining: verify the separate subtitle track, set YouTube visibility to Public, verify playback and submit Devpost. Studio publishing controls are failing to load reliably.
+2. Completed: narrated-video acceptance, public YouTube publication, embedded playback with captions, Devpost media attachments and confirmed hackathon submission. See [publication status](PUBLICATION.md).
 3. Agree a shadow pilot with one operator. Measure total active effort, including entering private records, maintaining references and processing irrelevant alerts. Agree required-source coverage and freshness before comparing time savings.
 4. Validate backup restoration, access policies, retention and service monitoring before admitting sensitive operator records. Public-signup abuse controls, shared-team authorization and external security review remain work for broader deployment.
 
-Recommend **Demo Ready / controlled shadow-pilot candidate**. Public software acceptance is complete within the recorded scope; narrated-video acceptance is complete. YouTube and Devpost publication remain pending. Do not present this release as certified aviation infrastructure, customer-validated enterprise software or evidence of prevented incidents.
+Recommend **Demo Ready / controlled shadow-pilot candidate**. Public software acceptance is complete within the recorded scope; narrated-video acceptance is complete. YouTube publication and Devpost submission are confirmed. Do not present this release as certified aviation infrastructure, customer-validated enterprise software or evidence of prevented incidents.

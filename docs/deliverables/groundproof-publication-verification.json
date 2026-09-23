@@ -1,24 +1,25 @@
 {
-  "checkedAt": "2026-09-23T11:58:23.915827+00:00",
+  "checkedAt": "2026-09-23T13:04:19.156756+00:00",
   "primaryUrl": "https://groundproof-flight.web.app",
   "youtube": {
     "videoId": "0zYnjZi1MFg",
     "url": "https://youtu.be/0zYnjZi1MFg",
     "studioUrl": "https://studio.youtube.com/video/0zYnjZi1MFg/edit",
-    "status": "uploaded, private draft",
+    "status": "published, Public",
     "titleSaved": true,
     "descriptionSaved": true,
     "customThumbnailSaved": true,
     "hdProcessingComplete": true,
     "language": "English",
     "aiDisclosure": "Yes",
-    "separateSubtitleTrack": "44 cues imported; save persistence not verified",
+    "separateSubtitleTrack": "YouTube automatic English track available; custom SRT persistence not confirmed",
     "burnedCaptions": true,
-    "publicPlaybackVerified": false
+    "publicPlaybackVerified": true,
+    "playbackEvidence": "Devpost embedded player advanced to 3 seconds of 3:30, showed Pause video and Subtitles/CC turned on."
   },
   "devpost": {
     "url": "https://devpost.com/software/groundproof",
-    "status": "draft, 3 of 4 steps",
+    "status": "submitted and verified",
     "storySaved": true,
     "coverSaved": true,
     "galleryImagesSaved": 3,
@@ -26,14 +27,10 @@
     "contributorCreditSaved": true,
     "productRepositoryTestingLinksSaved": true,
     "demoUrlSaved": "https://youtu.be/0zYnjZi1MFg",
-    "embedStatus": "This video is private",
-    "submitted": false
+    "embedStatus": "public video plays",
+    "submitted": true,
+    "confirmation": "Project submitted!"
   },
-  "blocker": "Studio publishing dialog remained inaccessible through repeated native Safari and Chrome recovery attempts. Blank page rendering, ScreenCaptureKit capture errors, native pipe closure and unsupported Codex auth method: apikey prevented final verification.",
-  "remaining": [
-    "Confirm the English subtitle track is saved.",
-    "Complete the existing YouTube draft with Public visibility. Do not re-upload.",
-    "Verify public playback and Devpost video embedding.",
-    "Submit the saved Devpost entry and verify submitted status."
-  ]
+  "blocker": null,
+  "remaining": []
 }

@@ -29,3 +29,7 @@ Built by Shivam Gupta with AI-assisted development and testing for the HTCJ × P
 Our next step is one drone inspection operator for a four-week shadow pilot. We want to measure total review effort, useful alerts, record-maintenance time, and willingness to pay for the proposed $199 monthly workspace price.
 
 #GroundProof #DroneOperations #Aviation #HTCJ #PROOF
+
+## Published video
+
+https://youtu.be/0zYnjZi1MFg
