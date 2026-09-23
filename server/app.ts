@@ -32,6 +32,7 @@ import {
   sessionUser,
   verifyPassword,
   type UserRow,
+  newRecoveryKey,
 } from "./auth.js";
 import {
   assessMission,
@@ -44,6 +45,8 @@ import {
   isAnakinConfigured,
   validateSourceUrl,
 } from "./providers.js";
+import { registerAccountSecurity } from "./account-security.js";
+import { recordEnvelope } from "./record-format.js";
 import { ApiError, fail } from "./errors.js";
 import {
   captureAndPersist,
@@ -141,13 +144,6 @@ const recordFields = {
     .refine((value) => !/[\r\n]/.test(value), "Use a single-line reference."),
   validUntil: z.iso.datetime({ offset: true }).nullable().optional(),
 };
-function recordEnvelope(
-  content: string,
-  reference: string,
-  validUntil: string | null,
-): string {
-  return `OPERATOR-SUPPLIED RECORD — NOT INDEPENDENTLY VERIFIED\nReference: ${reference}\nValid until: ${validUntil ?? "Not specified; configured freshness applies"}\n\n${content}`;
-}
 const sourceSchema = z
   .object({
     title: text(),
@@ -267,6 +263,7 @@ export async function buildApp(options: AppOptions = {}) {
       "/api/health",
       "/api/auth/register",
       "/api/auth/login",
+      "/api/auth/recover",
       "/api/auth/me",
       "/api/demo/start",
     ];
@@ -384,6 +381,7 @@ export async function buildApp(options: AppOptions = {}) {
   app.post("/api/auth/register", limited, async (request, reply) => {
     const input = parse(registerSchema, request.body);
     const password_hash = await hashPassword(input.password);
+    const recovery = newRecoveryKey();
     const row: UserRow = {
       id: randomUUID(),
       name: input.name,
@@ -398,6 +396,10 @@ export async function buildApp(options: AppOptions = {}) {
         db.prepare(
           "INSERT INTO users(id,name,email,workspace,password_hash,demo,created_at) VALUES(@id,@name,@email,@workspace,@password_hash,@demo,@created_at)",
         ).run(row);
+        db.prepare("UPDATE users SET recovery_hash=? WHERE id=?").run(
+          recovery.hash,
+          row.id,
+        );
         appendAudit(
           db,
           row.id,
@@ -420,7 +422,7 @@ export async function buildApp(options: AppOptions = {}) {
       secure,
       request.cookies.groundproof_session,
     );
-    return reply.status(201).send({ user: account });
+    return reply.status(201).send({ user: account, recoveryKey: recovery.key });
   });
   app.post("/api/auth/login", limited, async (request, reply) => {
     const input = parse(loginSchema, request.body);
@@ -435,27 +437,36 @@ export async function buildApp(options: AppOptions = {}) {
       .get(input.email) as UserRow | undefined;
     if (!(await verifyPassword(input.password, row?.password_hash)) || !row)
       fail(401, "Email or password is incorrect.");
-    db.prepare("DELETE FROM login_attempts WHERE identity_hash=?").run(
-      identityHash,
-    );
-    const account = publicUser(row);
-    createSession(
-      db,
-      account,
-      reply,
-      secure,
-      request.cookies.groundproof_session,
-    );
-    appendAudit(
-      db,
-      account.id,
-      account.name,
-      "session.started",
-      account.workspace,
-      "Signed in with a password.",
-    );
+    const account = db.transaction(() => {
+      const current = db
+        .prepare("SELECT * FROM users WHERE id=? AND demo=0")
+        .get(row.id) as UserRow | undefined;
+      if (!current || current.password_hash !== row.password_hash)
+        fail(401, "Email or password is incorrect.");
+      db.prepare("DELETE FROM login_attempts WHERE identity_hash=?").run(
+        identityHash,
+      );
+      const account = publicUser(current);
+      createSession(
+        db,
+        account,
+        reply,
+        secure,
+        request.cookies.groundproof_session,
+      );
+      appendAudit(
+        db,
+        account.id,
+        account.name,
+        "session.started",
+        account.workspace,
+        "Signed in with a password.",
+      );
+      return account;
+    })();
     return { user: account };
   });
+  registerAccountSecurity(app, db, secure);
   app.post("/api/auth/logout", async (request, reply) => {
     clearSession(db, reply, secure, request.cookies.groundproof_session);
     return { ok: true };
@@ -689,6 +700,60 @@ export async function buildApp(options: AppOptions = {}) {
       })();
     },
   );
+  app.get<{
+    Params: { id: string };
+    Querystring: { limit?: string; before?: string };
+  }>("/api/sources/:id/history", async (request) => {
+    const actor = user(request),
+      source = sourceFor(actor.id, request.params.id);
+    const input = parse(
+      z
+        .object({
+          limit: z.coerce.number().int().min(1).max(50).default(20),
+          before: id.optional(),
+        })
+        .strict(),
+      request.query,
+    );
+    const cursor = input.before
+      ? (db
+          .prepare(
+            "SELECT rowid FROM snapshots WHERE tenant_id=? AND source_id=? AND id=?",
+          )
+          .get(actor.id, source.id, input.before) as
+          { rowid: number } | undefined)
+      : null;
+    if (input.before && !cursor)
+      fail(404, "History cursor not found for this source.");
+    const rows = db
+      .prepare(
+        `SELECT data FROM snapshots WHERE tenant_id=? AND source_id=? ${cursor ? "AND rowid < ?" : ""} ORDER BY rowid DESC LIMIT ?`,
+      )
+      .all(
+        actor.id,
+        source.id,
+        ...(cursor ? [cursor.rowid] : []),
+        input.limit + 1,
+      ) as { data: string }[];
+    const snapshots = rows
+      .slice(0, input.limit)
+      .map(
+        (row) => JSON.parse(row.data) as import("../shared/types.js").Snapshot,
+      );
+    if (
+      snapshots.some(
+        (snapshot) => hashContent(snapshot.content) !== snapshot.hash,
+      )
+    )
+      fail(
+        409,
+        "A stored snapshot failed its integrity check. History retrieval stopped.",
+      );
+    return {
+      snapshots,
+      nextCursor: rows.length > input.limit ? snapshots.at(-1)!.id : null,
+    };
+  });
   app.post<{ Params: { id: string } }>(
     "/api/sources/:id/capture",
     { config: { rateLimit: { max: 30, timeWindow: "1 minute" } } },
@@ -1246,11 +1311,9 @@ export async function buildApp(options: AppOptions = {}) {
     });
   } else
     app.setNotFoundHandler(async (_request, reply) =>
-      reply
-        .status(404)
-        .send({
-          error: "Endpoint not found. Build the frontend with npm run build.",
-        }),
+      reply.status(404).send({
+        error: "Endpoint not found. Build the frontend with npm run build.",
+      }),
     );
   return app;
 }

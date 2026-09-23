@@ -19,6 +19,7 @@ jobs:
       - run: npm run build
       - run: npm test
       - run: npm run test:workers
+      - run: node --test deploy/firebase/proxy/server.test.mjs
       - run: npm run typecheck:workers
       - run: npm audit --audit-level=moderate
       - run: npx playwright install --with-deps chromium

@@ -1,3 +1,4 @@
+import { recordMetadataMatches } from "./record-format.js";
 import { createHash } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import type {
@@ -95,11 +96,13 @@ export function assessMission(
       );
     }
     if (source.kind === "record") {
-      const prefix = `OPERATOR-SUPPLIED RECORD — NOT INDEPENDENTLY VERIFIED\nReference: ${source.reference}\nValid until: ${source.validUntil ?? "Not specified; configured freshness applies"}\n\n`;
       if (
         snapshot.provider !== "manual" ||
-        !source.reference?.trim() ||
-        !snapshot.content.startsWith(prefix)
+        !recordMetadataMatches(
+          snapshot.content,
+          source.reference,
+          source.validUntil,
+        )
       ) {
         add(
           id,

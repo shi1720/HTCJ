@@ -220,6 +220,48 @@ describe("opt-in scheduled evidence monitoring", () => {
     resolveCapture({ content: "Original public site notice" });
     expect((await first).succeeded).toBe(1);
   });
+  it.each(["success", "failure"])(
+    "does not overwrite a newer manual capture when a stale monitor ends in %s",
+    async (outcome) => {
+      const test = await setup();
+      await test.enable();
+      let resolveCapture!: (value: { content: string }) => void;
+      let rejectCapture!: (error: Error) => void;
+      const pending = runDueCaptures(test.db, {
+        capture: () =>
+          new Promise((resolve, reject) => {
+            resolveCapture = resolve;
+            rejectCapture = reject;
+          }),
+      });
+      while (!resolveCapture)
+        await new Promise((resolve) => setTimeout(resolve, 1));
+      const manual = await test.post(`/api/sources/${test.source.id}/capture`, {
+        provider: "direct",
+      });
+      expect(manual.statusCode).toBe(200);
+      const before = await test.state();
+      expect(before.missions[0].assessment.status).toBe("ready");
+      if (outcome === "success")
+        resolveCapture({
+          content: "Superseded scheduled notice with different bytes",
+        });
+      else rejectCapture(new Error("An older scheduled request failed"));
+      expect(await pending).toEqual({ attempted: 1, succeeded: 0, failed: 1 });
+      const after = await test.state();
+      expect(after.sources[0]).toEqual(before.sources[0]);
+      expect(after.sources[0].lastError).toBeNull();
+      expect(after.missions[0].approval).toEqual(before.missions[0].approval);
+      expect(after.missions[0].revision).toBe(before.missions[0].revision);
+      expect(after.missions[0].assessment.status).toBe("ready");
+      expect(
+        after.audit.some((event) => event.action === "monitor.superseded"),
+      ).toBe(true);
+      expect(
+        after.audit.some((event) => event.action === "monitor.failed"),
+      ).toBe(false);
+    },
+  );
   it("does not re-enable a monitor disabled while its capture is in flight", async () => {
     const test = await setup();
     await test.enable();

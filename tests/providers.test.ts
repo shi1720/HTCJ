@@ -164,7 +164,7 @@ describe("bounded, inert evidence", () => {
         `<script>stealSecrets()</script><style>body{display:none}</style><p>${notice} &amp; terms &#8212; checked.</p>`,
         true,
       ),
-    ).toBe(`${notice} & terms — checked.`);
+    ).toBe(`${notice} & terms \u2014 checked.`);
   });
   it("rejects unreadable responses and unsupported binary sources", async () => {
     mock.responses.push({

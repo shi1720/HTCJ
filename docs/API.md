@@ -8,12 +8,20 @@ All endpoints return JSON. An HTTP-only `groundproof_session` cookie authenticat
 | --- | --- | --- |
 | GET | `/api/health` | Public `{status:'ok',version:'1.0.0'}` |
 | GET | `/api/auth/me` | Public `{user: User \| null}` |
-| POST | `/api/auth/register` | `{name,email,password,workspace}` → `{user}` (201); empty workspace; password at least 12 characters |
+| POST | `/api/auth/register` | `{name,email,password,workspace}` → `{user,recoveryKey}` (201); empty workspace; password at least 12 characters; save the single-use key |
 | POST | `/api/auth/login` | `{email,password}` → `{user}`; rotates current browser session |
 | POST | `/api/auth/logout` | Revokes current session and clears cookie |
+| POST | `/api/auth/password` | `{currentPassword,newPassword}` → `{user}`; rotates cookie and revokes every prior session |
+| POST | `/api/auth/recovery-key` | `{currentPassword}` → `{recoveryKey}`; replaces any previous key |
+| POST | `/api/auth/recover` | `{email,recoveryKey,newPassword}` → `{user,recoveryKey}`; consumes the old key, rotates cookie, revokes every prior session |
+| POST | `/api/auth/logout-all` | `{}` → `{ok:true}`; revokes every active session and clears cookie |
 | POST | `/api/demo/start` | Creates a fresh, isolated simulation and signs in → `{user}` (201) |
 
-Account sessions expire after seven days. Demo sessions expire after 24 hours. Expired sessions and inactive demo workspaces older than 24 hours are removed at startup and hourly; real accounts are never removed by retention cleanup. Sign-in additionally has a persistent per-email budget of 10 attempts per 15 minutes, cleared after successful authentication. Demonstration accounts cannot sign in using a password. Register/login responses never contain password hashes or session tokens in JSON.
+Account sessions expire after seven days. Demo sessions expire after 24 hours. Expired sessions and inactive demo workspaces older than 24 hours are removed at startup and hourly; real accounts are never removed by retention cleanup. Sign-in additionally has a persistent per-email budget of 10 attempts per 15 minutes, cleared after successful authentication. Demonstration accounts cannot sign in using a password. Authentication responses never contain password hashes or session tokens in JSON. A real account retains at most 20 active sessions; a new login evicts the oldest when needed.
+
+Recovery keys contain 256 random bits, prefixed `GP-`; only their SHA-256 digest is stored. Registration, recovery and explicit key regeneration return the new key once. Save it separately in a password manager. Key regeneration requires the current password; recovery requires the email and key, without an existing session. Recovery consumes the key atomically and returns a replacement. Concurrent recovery or password-change requests cannot both replace the same credentials. Password change retains the independently saved recovery key. Demo accounts cannot use these flows. Existing accounts can create their first key through the account-security screen after password reauthentication.
+
+Recovery and password reauthentication each have a separate persistent identity budget of 10 attempts per 15 minutes, plus endpoint IP throttling. Wrong, used, unknown-account and demo recovery requests share the same generic failure. A failed response never includes a key. No recovery email is sent, email ownership is not verified, and losing both the password and saved key leaves no self-service recovery path. Credentials and recovery keys are excluded from the audit trail.
 
 ## Workspace operations
 
@@ -30,6 +38,7 @@ Account sessions expire after seven days. Demo sessions expire after 24 hours. E
 | PATCH | `/api/sources/:id/monitor` | `{enabled,intervalHours,provider}`; explicit opt-in monitoring of real sources |
 | POST | `/api/sources/:id/review` | `{expectedHash,decision:'accepted'\|'blocked',note}` |
 | DELETE | `/api/sources/:id` | Only sources not required by any job can be removed |
+| GET | `/api/sources/:id/history?limit=20&before=SNAPSHOT_UUID` | `{snapshots:Snapshot[],nextCursor:string\|null}`; full immutable snapshots newest first; limit 1 to 50 |
 | POST | `/api/missions` | `{name,client,siteId,scheduledAt,value,sourceIds}` |
 | PATCH | `/api/missions/:id` | Any non-empty subset of creation fields; optional `expectedRevision` rejects stale edits; invalidates prior signature |
 | DELETE | `/api/missions/:id` | Removes job; retains audit events |
@@ -41,7 +50,7 @@ Names are 1–200 characters. Decision/sign-off notes are 8–2,000 characters. 
 
 Live web sources currently support approved public HTTPS domains: `faa.gov`, `nps.gov`, `boston.gov`, `mass.gov`, `weather.gov`, and `noaa.gov`, including their subdomains. The backend validates DNS and redirect destinations; private/reserved addresses, credentials, non-HTTPS URLs and nonstandard ports are refused. Fixtures cannot be live-captured. Anakin use is explicit and never silently substituted with Direct capture.
 
-Captures share a concurrency budget of two per workspace and eight per process. Evidence archives accept captures up to 100 MiB or 10,000 archived snapshots per workspace (a final in-flight capture can cross the byte threshold). Archive capacity does not silently delete historical evidence.
+Captures share a concurrency budget of two per workspace and eight per process. Evidence archives accept captures up to 100 MiB or 10,000 archived snapshots per workspace (a final in-flight capture can cross the byte threshold). Archive capacity does not silently delete historical evidence. The history endpoint includes the current capture and all retained previous captures in stable insertion order, checks every returned content hash, and scopes cursors to the current tenant and source. Pass `nextCursor` as `before` to request older captures. A cursor from another source or workspace returns 404; corrupt archived content returns 409. Refresh from the first page to see captures added during pagination.
 
 A failed capture returns 502, preserves the last successful snapshot, records the failure, and invalidates affected mission approvals. Conflicting concurrent captures return 409 rather than overwriting a newer snapshot. A content change removes the source's current review and invalidates all dependent signatures. Expired evidence refreshed with identical bytes still requires a new mission signature.
 
@@ -49,7 +58,7 @@ A failed capture returns 502, preserves the last successful snapshot, records th
 
 A record is a text excerpt supplied by the authenticated operator, not a fetched or independently authenticated document. Text must contain 50–20,000 characters; its one-line reference must contain 3–300. The operator retains the signed original or primary record and supplies its reference. Records use `kind:'record'`, `fixture:false`, and snapshot `provider:'manual'`. The internal `groundproof.invalid` URL is an identifier, not a link to the original.
 
-Every snapshot includes a visible operator-supplied label, reference, optional declared validity and text in one hash-bound envelope. Editing reference or validity therefore changes the content digest too. An update requires the latest `expectedHash`, retains previous snapshots, clears the current review and invalidates dependent approvals. Even an identical explicit resubmission requires review. Record authenticity, signatures, legal sufficiency and the truth of the operator's statement are not verified.
+Every snapshot includes a visible operator-supplied label, reference, optional declared validity and text in one hash-bound envelope. New envelopes use plain punctuation; legacy envelopes remain valid and historical bytes are never rewritten for typography. Editing reference or validity therefore changes the content digest too. An update requires the latest `expectedHash`, retains previous snapshots, clears the current review and invalidates dependent approvals. Even an identical explicit resubmission requires review. Record authenticity, signatures, legal sufficiency and the truth of the operator's statement are not verified.
 
 An expired declared `validUntil` holds dependent jobs. A record that expires at or before a job's scheduled time also holds that job even if the record is currently in date. If validity is omitted/null, configured freshness still applies; the product does not infer an expiry. Operator records cannot enable web capture or automatic monitoring. Their owner must record updates when the primary evidence changes.
 

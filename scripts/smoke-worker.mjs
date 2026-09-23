@@ -4,6 +4,8 @@
  */
 import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
+import { tsImport } from "tsx/esm/api";
+const { verifyPacket } = await tsImport("./verify-packet.ts", import.meta.url);
 const base = (process.argv[2] || "http://localhost:8787").replace(/\/$/, "");
 let cookie = "",
   passed = 0;
@@ -22,10 +24,15 @@ async function request(
     redirect: "manual",
   });
   const text = await response.text();
+  if (new URL(base).hostname.endsWith(".web.app"))
+    assert.match(
+      response.headers.get("cache-control") || "",
+      /private.*no-store/,
+    );
   assert.equal(
     response.status,
     status,
-    `${method} ${path}: ${text.slice(0, 500)}`,
+    `${method} ${path}: ${path.startsWith("/api/auth/") ? "Authentication response body omitted to protect credentials." : text.slice(0, 500)}`,
   );
   passed++;
   return {
@@ -45,6 +52,8 @@ await request("/api/demo/start", {
 });
 const demo = await request("/api/demo/start", { method: "POST", status: 201 });
 cookie = demo.response.headers.get("set-cookie").split(";")[0];
+if (new URL(base).hostname.endsWith(".web.app"))
+  assert.match(cookie, /^__session=/);
 assert.match(demo.response.headers.get("set-cookie"), /HttpOnly/);
 assert.match(demo.response.headers.get("set-cookie"), /SameSite=Strict/);
 if (base.startsWith("https:"))
@@ -106,12 +115,23 @@ await request(`/api/missions/${reviewed.missions[0].id}/approve`, {
 });
 const packet = await request(`/api/missions/${reviewed.missions[0].id}/export`);
 assert.match(packet.data.manifest.hash, /^[a-f0-9]{64}$/);
+const verification = verifyPacket(packet.data);
+assert.equal(verification.valid, true, verification.errors.join("; "));
 const other = await request("/api/demo/start", {
   method: "POST",
   status: 201,
   session: "",
 });
 const otherCookie = other.response.headers.get("set-cookie").split(";")[0];
+if (new URL(base).hostname.endsWith(".web.app")) {
+  const firstLimit = await request("/api/state");
+  const secondLimit = await request("/api/state", { session: otherCookie });
+  assert(
+    Number(secondLimit.response.headers.get("x-ratelimit-remaining")) >
+      Number(firstLimit.response.headers.get("x-ratelimit-remaining")),
+    "Firebase sessions must receive separate verified-account request limits.",
+  );
+}
 await request(`/api/missions/${reviewed.missions[0].id}/export`, {
   session: otherCookie,
   status: 404,
@@ -204,6 +224,9 @@ assert.equal(
   afterRecord.missions.find((m) => m.id === recordMission.id).approval,
   null,
 );
+const history = (await request(`/api/sources/${record.id}/history`)).data;
+assert.equal(history.snapshots.length, 2);
+assert.notEqual(history.snapshots[0].hash, history.snapshots[1].hash);
 await request(`/api/sources/${record.id}/capture`, {
   method: "POST",
   body: { provider: "direct" },
@@ -247,12 +270,45 @@ if (process.argv.includes("--registration")) {
   cookie = login.response.headers.get("set-cookie").split(";")[0];
   assert.notEqual(cookie, old);
   await request("/api/state", { session: old, status: 401 });
+  assert.match(registered.data.recoveryKey, /^GP-[A-F0-9]{64}$/);
+  const currentCookie = cookie;
+  const changedPassword = `Changed ${randomBytes(24).toString("base64url")}!`;
+  const changed = await request("/api/auth/password", {
+    method: "POST",
+    body: { currentPassword: password, newPassword: changedPassword },
+  });
+  cookie = changed.response.headers.get("set-cookie").split(";")[0];
+  await request("/api/state", { session: currentCookie, status: 401 });
   await request("/api/auth/logout", { method: "POST", body: {} });
+  const recovered = await request("/api/auth/recover", {
+    method: "POST",
+    session: "",
+    body: {
+      email,
+      recoveryKey: registered.data.recoveryKey,
+      newPassword: `Recovered ${randomBytes(24).toString("base64url")}!`,
+    },
+  });
+  assert.notEqual(recovered.data.recoveryKey, registered.data.recoveryKey);
+  cookie = recovered.response.headers.get("set-cookie").split(";")[0];
+  await request("/api/auth/recover", {
+    method: "POST",
+    session: "",
+    body: {
+      email,
+      recoveryKey: registered.data.recoveryKey,
+      newPassword: password,
+    },
+    status: 401,
+  });
+  await request("/api/auth/logout-all", { method: "POST", body: {} });
+  await request("/api/state", { status: 401 });
 }
 console.log(
   JSON.stringify(
     {
       base,
+      checkedAt: new Date().toISOString(),
       passed,
       registration: process.argv.includes("--registration"),
       verified: [
@@ -263,9 +319,21 @@ console.log(
         "hash-bound approval",
         "tenant isolation",
         "JSON export",
+        "offline packet integrity verifier",
         "rule lab",
         "operator-record revisions",
+        "source history",
         "session revocation",
+        ...(new URL(base).hostname.endsWith(".web.app")
+          ? [
+              "Firebase __session translation",
+              "separate verified-account request limits",
+              "private API cache control",
+            ]
+          : []),
+        ...(process.argv.includes("--registration")
+          ? ["password change", "single-use account recovery"]
+          : []),
       ],
     },
     null,

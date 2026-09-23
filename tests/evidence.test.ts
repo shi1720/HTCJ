@@ -58,7 +58,7 @@ function fixture(): {
 function recordFixture(validUntil?: string | null) {
   const { source, mission } = fixture();
   const reference = "SITE-2026-001";
-  const content = `OPERATOR-SUPPLIED RECORD — NOT INDEPENDENTLY VERIFIED\nReference: ${reference}\nValid until: ${validUntil ?? "Not specified; configured freshness applies"}\n\nWritten permission for this site.`;
+  const content = `OPERATOR-SUPPLIED RECORD - NOT INDEPENDENTLY VERIFIED\nReference: ${reference}\nValid until: ${validUntil ?? "Not specified; configured freshness applies"}\n\nWritten permission for this site.`;
   const hash = hashContent(content);
   return {
     source: {

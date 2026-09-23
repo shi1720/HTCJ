@@ -6,6 +6,7 @@ import {
   isCaptureInFlight,
   scheduleNextCapture,
 } from "./capture.js";
+import { ApiError } from "./errors.js";
 import type { captureSource } from "./providers.js";
 
 function candidates(db: Db, at: string) {
@@ -78,6 +79,25 @@ export async function runDueCaptures(
           row.id,
         );
         if (!current) return;
+        if (
+          error instanceof ApiError &&
+          error.statusCode === 409 &&
+          current.latest?.id !== source.latest?.id
+        ) {
+          // A newer completed capture is authoritative. A stale monitor result
+          // must not turn that successful snapshot into an apparent outage.
+          appendAudit(
+            db,
+            row.tenant_id,
+            "Scheduled monitor",
+            "monitor.superseded",
+            current.title,
+            "A newer capture completed before this scheduled attempt. The stale result was discarded without changing the current evidence or signatures.",
+            current.id,
+          );
+          return;
+        }
+
         current.lastError = (
           error instanceof Error ? error.message : "Scheduled capture failed."
         ).slice(0, 300);

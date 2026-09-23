@@ -9,8 +9,8 @@ import type {
 import { appendAudit, insertData, type Db } from "./db.js";
 import { hashContent } from "./evidence.js";
 
-export const HARBOR_OPEN = `SIMULATED EVIDENCE — NOT AN OPERATIONAL NOTICE\nHarbor Works access notice | Revision A\nSite: Harbor Works, Boston demonstration area.\nContractor access is open 08:00–18:00 for scheduled inspection teams.\nCoordinate with the site supervisor before entering the loading area.\nThis fictional fixture provides no airspace or flight authorization.`;
-export const HARBOR_CLOSED = `SIMULATED EVIDENCE — NOT AN OPERATIONAL NOTICE\nHarbor Works access notice | Revision B\nSITE ACCESS SUSPENDED: crane operations now occupy the contractor staging area.\nNo contractor access until the site supervisor confirms a new access window.\nThe three demonstration inspection jobs require a human scheduling decision.\nThis fictional fixture provides no airspace or flight authorization.`;
+export const HARBOR_OPEN = `SIMULATED EVIDENCE - NOT AN OPERATIONAL NOTICE\nHarbor Works access notice | Revision A\nSite: Harbor Works, Boston demonstration area.\nContractor access is open 08:00–18:00 for scheduled inspection teams.\nCoordinate with the site supervisor before entering the loading area.\nThis fictional fixture provides no airspace or flight authorization.`;
+export const HARBOR_CLOSED = `SIMULATED EVIDENCE - NOT AN OPERATIONAL NOTICE\nHarbor Works access notice | Revision B\nSITE ACCESS SUSPENDED: crane operations now occupy the contractor staging area.\nNo contractor access until the site supervisor confirms a new access window.\nThe three demonstration inspection jobs require a human scheduling decision.\nThis fictional fixture provides no airspace or flight authorization.`;
 export function makeSnapshot(
   content: string,
   provider: Snapshot["provider"] = "fixture",
@@ -72,28 +72,28 @@ export function seedDemo(db: Db, user: User) {
       category: "airspace" as const,
       siteId: null,
       content:
-        "SIMULATED EVIDENCE — NOT FLIGHT AUTHORIZATION\nDemonstration planning checklist reviewed. Before every real mission, the remote pilot must independently verify airspace restrictions, authorizations, weather and all applicable operating requirements. No live airspace information is included.",
+        "SIMULATED EVIDENCE - NOT FLIGHT AUTHORIZATION\nDemonstration planning checklist reviewed. Before every real mission, the remote pilot must independently verify airspace restrictions, authorizations, weather and all applicable operating requirements. No live airspace information is included.",
     },
     {
       title: "Operator insurance record",
       category: "insurance" as const,
       siteId: null,
       content:
-        "SIMULATED EVIDENCE — NOT AN INSURANCE POLICY\nFictional demonstration operator has an insurance checklist on file. Verify coverage, exclusions and current policy documents with the operator before any real engagement.",
+        "SIMULATED EVIDENCE - NOT AN INSURANCE POLICY\nFictional demonstration operator has an insurance checklist on file. Verify coverage, exclusions and current policy documents with the operator before any real engagement.",
     },
     {
       title: "Foundry Quay access notice",
       category: "site-access" as const,
       siteId: sites[1].id,
       content:
-        "SIMULATED EVIDENCE — NOT AN OPERATIONAL NOTICE\nFoundry Quay fictional access window is open for scheduled teams. Site supervisor coordination is required. No aviation permission is implied.",
+        "SIMULATED EVIDENCE - NOT AN OPERATIONAL NOTICE\nFoundry Quay fictional access window is open for scheduled teams. Site supervisor coordination is required. No aviation permission is implied.",
     },
     {
       title: "North Marsh access notice",
       category: "site-access" as const,
       siteId: sites[2].id,
       content:
-        "SIMULATED EVIDENCE — NOT AN OPERATIONAL NOTICE\nNorth Marsh fictional inspection area is open to scheduled survey teams. No public access or flight authorization is implied.",
+        "SIMULATED EVIDENCE - NOT AN OPERATIONAL NOTICE\nNorth Marsh fictional inspection area is open to scheduled survey teams. No public access or flight authorization is implied.",
     },
   ];
   const sources: EvidenceSource[] = sourceDefinitions.map((source, index) => ({

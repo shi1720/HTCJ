@@ -42,6 +42,7 @@ export interface UserRow {
   password_hash: string;
   demo: number;
   created_at: string;
+  recovery_hash?: string | null;
 }
 export function publicUser(row: UserRow): User {
   return {
@@ -88,6 +89,9 @@ export function createSession(
       user.id,
       new Date(Date.now() + maxAge * 1000).toISOString(),
     );
+    db.prepare(
+      "DELETE FROM sessions WHERE user_id=? AND token_hash NOT IN (SELECT token_hash FROM sessions WHERE user_id=? ORDER BY rowid DESC LIMIT 20)",
+    ).run(user.id, user.id);
   })();
   reply.setCookie("groundproof_session", token, {
     path: "/",
@@ -113,4 +117,27 @@ export function clearSession(
     sameSite: "strict",
     secure,
   });
+}
+
+export function newRecoveryKey(): { key: string; hash: string } {
+  const key = `GP-${randomBytes(32).toString("hex").toUpperCase()}`;
+  return { key, hash: tokenHash(key) };
+}
+export function verifyRecoveryKey(
+  key: string,
+  storedHash?: string | null,
+): boolean {
+  const normalized = key.trim().toUpperCase();
+  const actual = Buffer.from(tokenHash(normalized), "hex");
+  const expected = Buffer.from(
+    storedHash && /^[a-f0-9]{64}$/.test(storedHash)
+      ? storedHash
+      : "0".repeat(64),
+    "hex",
+  );
+  return (
+    timingSafeEqual(actual, expected) &&
+    /^GP-[A-F0-9]{64}$/.test(normalized) &&
+    Boolean(storedHash)
+  );
 }

@@ -15,7 +15,7 @@ export function openDatabase(
 }
 export function initializeDatabase(db: Db): Db {
   const version = db.pragma("user_version", { simple: true }) as number;
-  if (version > 4) {
+  if (version > 5) {
     db.close();
     throw new Error(
       "This database was created by a newer GroundProof release. Upgrade the application before opening it.",
@@ -69,8 +69,12 @@ export function initializeDatabase(db: Db): Db {
       day TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0
     );
     INSERT OR IGNORE INTO provider_daily_usage(day,count) SELECT day,SUM(count) FROM provider_usage GROUP BY day;
-    PRAGMA user_version = 4;
+    CREATE INDEX IF NOT EXISTS sessions_user ON sessions(user_id);
+    PRAGMA user_version = 5;
   `);
+  const userColumns = db.pragma("table_info(users)") as { name: string }[];
+  if (!userColumns.some((column) => column.name === "recovery_hash"))
+    db.exec("ALTER TABLE users ADD COLUMN recovery_hash TEXT");
   const auditColumns = db.pragma("table_info(audit)") as { name: string }[];
   if (!auditColumns.some((column) => column.name === "object_id"))
     db.exec("ALTER TABLE audit ADD COLUMN object_id TEXT");

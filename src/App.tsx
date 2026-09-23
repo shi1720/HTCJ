@@ -54,6 +54,8 @@ import type {
 } from "../shared/types";
 import { api, ApiError, money, date } from "./api";
 import { decisionReport, type DecisionPacket } from "./report";
+import { AccountSecurity, RecoveryKey } from "./AccountSecurity";
+import { SourceHistory } from "./SourceHistory";
 
 type Page =
   | "overview"
@@ -133,18 +135,44 @@ function Badge({ status }: { status: string }) {
     </span>
   );
 }
-function sourceStatus(s: EvidenceSource, now: string) {
+function captureIssue(s: EvidenceSource, now: string): string | null {
+  if (!s.latest) return "Capture this source before reviewing it.";
+  if (s.lastError)
+    return "The latest capture failed. Capture the source again before recording a decision.";
+  const time = Date.parse(now),
+    captured = Date.parse(s.latest.capturedAt);
   if (
-    (s.validUntil && Date.parse(s.validUntil) <= Date.parse(now)) ||
-    s.lastError ||
-    !s.latest ||
-    s.reviewDecision === "blocked" ||
-    Date.parse(now) - Date.parse(s.latest.capturedAt) >=
-      s.freshnessHours * 3600000
+    !Number.isFinite(captured) ||
+    captured > time ||
+    time - captured >= s.freshnessHours * 3600000
   )
-    return "hold";
-  if (s.reviewedHash !== s.latest.hash) return "review";
-  return "ready";
+    return s.kind === "record"
+      ? "This record needs a current version. Update it before reviewing."
+      : "This capture is out of date. Capture the source again before reviewing.";
+  if (
+    s.validUntil &&
+    (!Number.isFinite(Date.parse(s.validUntil)) ||
+      Date.parse(s.validUntil) <= time)
+  )
+    return "This record has expired. Obtain current evidence and update the record before reviewing.";
+  return null;
+}
+function sourceStatus(s: EvidenceSource, now: string) {
+  if (captureIssue(s, now)) return "hold";
+  if (s.reviewedHash !== s.latest?.hash || !s.reviewDecision) return "review";
+  return s.reviewDecision === "blocked" ? "hold" : "ready";
+}
+function canSignOff(mission: Mission, state: AppState) {
+  return (
+    mission.sourceIds.length > 0 &&
+    mission.sourceIds.every((id) => {
+      const source = state.sources.find((item) => item.id === id);
+      return source && sourceStatus(source, state.serverTime) === "ready";
+    }) &&
+    !mission.assessment.issues.some((issue) =>
+      ["missing", "stale", "blocked", "unavailable"].includes(issue.code),
+    )
+  );
 }
 function Empty({
   title,
@@ -170,34 +198,60 @@ function ModalFrame({
   children,
   onClose,
   wide = false,
+  dismissible = true,
 }: {
   title: string;
   eyebrow?: string;
   children: ReactNode;
   onClose: () => void;
   wide?: boolean;
+  dismissible?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+  const dismissRef = useRef(dismissible);
+  closeRef.current = onClose;
+  dismissRef.current = dismissible;
   useEffect(() => {
-    const previous = document.activeElement as HTMLElement;
+    const previous = document.activeElement as HTMLElement | null;
     const frame = ref.current;
-    frame?.querySelector<HTMLElement>("button,input,select,textarea")?.focus();
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "Tab" && frame) {
-        const nodes = [
-          ...frame.querySelectorAll<HTMLElement>(
-            "button:not(:disabled),input,select,textarea,a[href]",
-          ),
-        ];
-        const first = nodes[0],
+    const overflow = document.body.style.overflow;
+    const focusable = () =>
+      [
+        ...(frame?.querySelectorAll<HTMLElement>(
+          'button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href],[tabindex="0"]',
+        ) ?? []),
+      ].filter(
+        (element) =>
+          element.getClientRects().length > 0 && element.tabIndex >= 0,
+      );
+    (focusable()[0] ?? frame)?.focus();
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && dismissRef.current) {
+        event.preventDefault();
+        closeRef.current();
+      }
+      if (event.key === "Tab" && frame) {
+        const nodes = focusable(),
+          first = nodes[0],
           last = nodes[nodes.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first?.focus();
+        if (!nodes.length) {
+          event.preventDefault();
+          frame.focus();
+        } else if (
+          event.shiftKey &&
+          (document.activeElement === first ||
+            !frame.contains(document.activeElement))
+        ) {
+          event.preventDefault();
+          last.focus();
+        } else if (
+          !event.shiftKey &&
+          (document.activeElement === last ||
+            !frame.contains(document.activeElement))
+        ) {
+          event.preventDefault();
+          first.focus();
         }
       }
     };
@@ -205,20 +259,21 @@ function ModalFrame({
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", handler);
-      document.body.style.overflow = "";
-      previous?.focus();
+      document.body.style.overflow = overflow;
+      if (previous?.isConnected) previous.focus();
     };
-  }, [onClose]);
+  }, []);
   return (
     <div
       className="modal-backdrop"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (dismissible && e.target === e.currentTarget) onClose();
       }}
     >
       <div
         ref={ref}
         role="dialog"
+        tabIndex={-1}
         aria-modal="true"
         aria-label={title}
         className={`modal ${wide ? "wide" : ""}`}
@@ -228,9 +283,11 @@ function ModalFrame({
             <span className="eyebrow">{eyebrow}</span>
             <h2>{title}</h2>
           </div>
-          <IconButton label="Close dialog" onClick={onClose}>
-            <X size={20} />
-          </IconButton>
+          {dismissible && (
+            <IconButton label="Close dialog" onClick={onClose}>
+              <X size={20} />
+            </IconButton>
+          )}
         </div>
         {children}
       </div>
@@ -241,10 +298,12 @@ function Landing({
   onUser,
   onError,
 }: {
-  onUser: (u: User) => void;
+  onUser: (u: User, recoveryKey?: string) => void;
   onError: (s: string) => void;
 }) {
-  const [mode, setMode] = useState<"landing" | "login" | "register">("landing");
+  const [mode, setMode] = useState<
+    "landing" | "login" | "register" | "recover"
+  >("landing");
   const [busy, setBusy] = useState(false);
   async function demo() {
     setBusy(true);
@@ -262,8 +321,11 @@ function Landing({
     const form = Object.fromEntries(new FormData(e.currentTarget));
     setBusy(true);
     try {
-      const r = await api<{ user: User }>(`/auth/${mode}`, form);
-      onUser(r.user);
+      const r = await api<{ user: User; recoveryKey?: string }>(
+        `/auth/${mode}`,
+        form,
+      );
+      onUser(r.user, r.recoveryKey);
     } catch (e) {
       onError((e as Error).message);
     } finally {
@@ -412,9 +474,19 @@ function Landing({
       {mode !== "landing" && (
         <ModalFrame
           title={
-            mode === "login" ? "Welcome back" : "Your operations, in one place"
+            mode === "login"
+              ? "Welcome back"
+              : mode === "recover"
+                ? "Recover your workspace"
+                : "Your operations, in one place"
           }
-          eyebrow={mode === "login" ? "SIGN IN" : "CREATE A WORKSPACE"}
+          eyebrow={
+            mode === "login"
+              ? "SIGN IN"
+              : mode === "recover"
+                ? "ACCOUNT RECOVERY"
+                : "CREATE A WORKSPACE"
+          }
           onClose={() => setMode("landing")}
         >
           <form onSubmit={auth} className="form-stack">
@@ -453,15 +525,34 @@ function Landing({
                 placeholder="you@company.com"
               />
             </label>
+            {mode === "recover" && (
+              <>
+                <p className="muted small-text">
+                  Enter your saved recovery key and choose a new password. You
+                  will receive a replacement key after recovery. No email reset
+                  link is needed.
+                </p>
+                <label>
+                  Recovery key
+                  <input
+                    name="recoveryKey"
+                    autoComplete="off"
+                    spellCheck={false}
+                    required
+                  />
+                </label>
+              </>
+            )}
             <label>
-              Password
+              {mode === "recover" ? "New password" : "Password"}
               <input
-                name="password"
+                name={mode === "recover" ? "newPassword" : "password"}
                 type="password"
                 autoComplete={
                   mode === "login" ? "current-password" : "new-password"
                 }
                 minLength={12}
+                maxLength={128}
                 required
                 placeholder={
                   mode === "register"
@@ -482,8 +573,21 @@ function Landing({
               ) : (
                 <LockKeyhole size={16} />
               )}{" "}
-              {mode === "login" ? "Sign in" : "Create workspace"}
+              {mode === "login"
+                ? "Sign in"
+                : mode === "recover"
+                  ? "Recover account"
+                  : "Create workspace"}
             </button>
+            {mode === "login" && (
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => setMode("recover")}
+              >
+                Forgot your password? Use a recovery key
+              </button>
+            )}
             <button
               type="button"
               className="text-button"
@@ -515,13 +619,53 @@ export default function App() {
   const [provider, setProvider] = useState<"direct" | "anakin">("direct");
   const [lab, setLab] = useState<LabReport | null>(null);
   const [navOpen, setNavOpen] = useState(false);
+  const [compactNavigation, setCompactNavigation] = useState(
+    () => window.matchMedia("(max-width: 720px)").matches,
+  );
+  const [recoveryKey, setRecoveryKey] = useState<string | null>(null);
+  const [sourceSearch, setSourceSearch] = useState("");
+  const [connectionIssue, setConnectionIssue] = useState("");
+  const navRef = useRef<HTMLElement>(null);
+  const sessionGeneration = useRef(0);
+  const refreshSequence = useRef(0);
   const [roi, setRoi] = useState({ jobs: 120, minutes: 8, rate: 45 });
   const notify = (text: string, error = false) => setToast({ text, error });
+  function clearWorkspace() {
+    sessionGeneration.current += 1;
+    refreshSequence.current += 1;
+    setUser(null);
+    setState(null);
+    setModal(null);
+    setRecoveryKey(null);
+    setBusy("");
+    setToast(null);
+    setConnectionIssue("");
+    setPage("overview");
+    setNavOpen(false);
+  }
   async function refresh() {
-    const data = await api<AppState>("/state");
-    setState(data);
-    setUser(data.user);
-    return data;
+    const generation = sessionGeneration.current;
+    const sequence = ++refreshSequence.current;
+    try {
+      const data = await api<AppState>("/state");
+      if (
+        generation === sessionGeneration.current &&
+        sequence === refreshSequence.current
+      ) {
+        setState(data);
+        setConnectionIssue("");
+        setUser(data.user);
+      }
+      return data;
+    } catch (error) {
+      // An older request must not end or show errors in a replacement session.
+      if (
+        generation !== sessionGeneration.current ||
+        sequence !== refreshSequence.current
+      )
+        return;
+      throw error;
+    }
   }
   useEffect(() => {
     api<{ user: User }>("/auth/me")
@@ -533,21 +677,72 @@ export default function App() {
     if (user)
       refresh().catch((e) => {
         notify(e.message, true);
-        if (e instanceof ApiError && e.status === 401) setUser(null);
+        if (e instanceof ApiError && e.status === 401) clearWorkspace();
       });
   }, [user?.id]);
   useEffect(() => {
-    if (!toast) return;
+    if (!toast || toast.error) return;
     const timer = setTimeout(() => setToast(null), 7000);
     return () => clearTimeout(timer);
   }, [toast]);
   useEffect(() => {
     if (!user) return;
     const timer = setInterval(() => {
-      refresh().catch(() => {});
+      refresh().catch((error) => {
+        if (error instanceof ApiError && error.status === 401) {
+          clearWorkspace();
+          notify("Your session ended. Sign in again to continue.", true);
+        } else
+          setConnectionIssue(
+            "Workspace updates are paused. Reconnect and refresh before making a decision.",
+          );
+      });
     }, 30000);
     return () => clearInterval(timer);
   }, [user?.id]);
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 720px)");
+    const update = () => {
+      setCompactNavigation(media.matches);
+      if (!media.matches) setNavOpen(false);
+    };
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (!navOpen) return;
+    const panel = navRef.current,
+      previous = document.activeElement as HTMLElement | null,
+      overflow = document.body.style.overflow;
+    const nodes = () =>
+      [
+        ...(panel?.querySelectorAll<HTMLElement>("button,a[href]") ?? []),
+      ].filter(
+        (item) =>
+          item.getClientRects().length > 0 && !item.hasAttribute("disabled"),
+      );
+    nodes()[0]?.focus();
+    document.body.style.overflow = "hidden";
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setNavOpen(false);
+      if (event.key === "Tab") {
+        const items = nodes();
+        if (event.shiftKey && document.activeElement === items[0]) {
+          event.preventDefault();
+          items.at(-1)?.focus();
+        } else if (!event.shiftKey && document.activeElement === items.at(-1)) {
+          event.preventDefault();
+          items[0]?.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => {
+      document.body.style.overflow = overflow;
+      document.removeEventListener("keydown", handler);
+      if (previous?.isConnected) previous.focus();
+    };
+  }, [navOpen]);
   async function mutate(
     path: string,
     body: unknown,
@@ -555,20 +750,32 @@ export default function App() {
     close = false,
     method?: string,
   ) {
+    const generation = sessionGeneration.current;
     setBusy(path);
     try {
       await api(path, body, method);
-      await refresh();
+      if (generation !== sessionGeneration.current) return false;
+      try {
+        await refresh();
+      } catch {
+        setConnectionIssue(
+          "Your change was saved, but the workspace could not refresh. Refresh to see the latest state.",
+        );
+      }
+      if (generation !== sessionGeneration.current) return false;
       if (close) setModal(null);
       notify(success);
-    } catch (e) {
-      notify((e as Error).message, true);
+      return true;
+    } catch (error) {
+      if (generation === sessionGeneration.current)
+        notify((error as Error).message, true);
+      return false;
     } finally {
-      setBusy("");
+      if (generation === sessionGeneration.current) setBusy("");
     }
   }
   async function drill(scenario: string) {
-    await mutate(
+    const succeeded = await mutate(
       "/demo/drill",
       { scenario },
       scenario === "closure"
@@ -577,7 +784,7 @@ export default function App() {
           ? "New evidence captured. Review and sign off again to release work."
           : "Failure injected. The evidence gate is holding affected work.",
     );
-    setPage("overview");
+    if (succeeded) setPage("overview");
   }
   const closeModal = () => setModal(null);
   if (initial)
@@ -591,7 +798,18 @@ export default function App() {
   if (!user)
     return (
       <>
-        <Landing onUser={setUser} onError={(s) => notify(s, true)} />
+        <Landing
+          onUser={(account, key) => {
+            sessionGeneration.current += 1;
+            refreshSequence.current += 1;
+            setState(null);
+            setToast(null);
+            setConnectionIssue("");
+            setUser(account);
+            setRecoveryKey(key ?? null);
+          }}
+          onError={(s) => notify(s, true)}
+        />
         {toast && (
           <div role="alert" className={`toast ${toast.error ? "error" : ""}`}>
             <TriangleAlert size={18} />
@@ -618,8 +836,7 @@ export default function App() {
             <button
               className="button secondary"
               onClick={() => {
-                setUser(null);
-                setState(null);
+                clearWorkspace();
               }}
             >
               Return to sign in
@@ -629,12 +846,18 @@ export default function App() {
       </div>
     );
   const current = state;
-  const held = current.missions.filter(
-    (m) => m.assessment.status === "hold" || m.assessment.status === "review",
-  );
+  const held = current.missions.filter((m) => m.assessment.status !== "ready");
   const ready = current.missions.filter((m) => m.assessment.status === "ready");
   const reviewSources = current.sources.filter(
     (s) => sourceStatus(s, current.serverTime) !== "ready",
+  );
+  const filteredSources = current.sources.filter((source) =>
+    `${source.title} ${source.reference ?? ""} ${source.url} ${categoryLabels[source.category]}`
+      .toLowerCase()
+      .includes(sourceSearch.toLowerCase()),
+  );
+  const signoffQueue = current.missions.filter(
+    (m) => m.assessment.status !== "ready" && canSignOff(m, current),
   );
   const exposure = held.reduce((sum, m) => sum + m.value, 0);
   const filtered = current.missions.filter(
@@ -647,7 +870,9 @@ export default function App() {
   const navigate = (p: Page) => {
     setPage(p);
     setSearch("");
+    setSourceSearch("");
     setFilter("all");
+    window.scrollTo({ top: 0 });
     setNavOpen(false);
   };
   const selectedSource =
@@ -660,60 +885,117 @@ export default function App() {
       : null;
   function missionTable(missions: Mission[], compact = false) {
     return missions.length ? (
-      <div className="table-scroll">
-        <table className="mission-table">
-          <thead>
-            <tr>
-              <th>Mission / client</th>
-              <th>Site</th>
-              {!compact && <th>Scheduled (local)</th>}
-              <th>Evidence status</th>
-              <th className="align-right">Job value</th>
-              <th>
-                <span className="sr-only">Open</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {missions.map((m) => (
-              <tr
-                key={m.id}
-                onClick={() => setModal({ type: "mission", mission: m })}
-              >
-                <td>
-                  <button
-                    className="table-title"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setModal({ type: "mission", mission: m });
-                    }}
-                  >
-                    {m.name}
-                  </button>
-                  <span className="cell-sub">{m.client}</span>
-                </td>
-                <td>
-                  <span className="site-cell">
-                    <MapPin size={13} />
-                    {current.sites.find((s) => s.id === m.siteId)?.name ||
-                      "Unknown site"}
-                  </span>
-                </td>
-                {!compact && (
-                  <td className="mono small-text">{date(m.scheduledAt)}</td>
-                )}
-                <td>
-                  <Badge status={m.assessment.status} />
-                </td>
-                <td className="align-right mono">{money(m.value)}</td>
-                <td>
-                  <ChevronRight size={15} className="muted" />
-                </td>
+      <>
+        <div className="mobile-mission-list">
+          {missions.map((mission) => (
+            <button
+              className="mobile-mission-card"
+              key={mission.id}
+              aria-label={mission.name}
+              onClick={() => setModal({ type: "mission", mission })}
+            >
+              <div className="mobile-mission-heading">
+                <div>
+                  <strong>{mission.name}</strong>
+                  <span>{mission.client}</span>
+                </div>
+                <Badge status={mission.assessment.status} />
+              </div>
+              <div className="mobile-mission-meta">
+                <span>
+                  <MapPin size={14} />
+                  {
+                    current.sites.find((site) => site.id === mission.siteId)
+                      ?.name
+                  }
+                </span>
+                <span>
+                  <Clock3 size={14} />
+                  {date(mission.scheduledAt)}
+                </span>
+              </div>
+              <div className="mobile-mission-bottom">
+                <span>
+                  Booked value <strong>{money(mission.value)}</strong>
+                </span>
+                <span>
+                  Open decision <ChevronRight size={15} />
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+        <div className="table-scroll desktop-mission-list">
+          <table className="mission-table">
+            <thead>
+              <tr>
+                <th>Mission / client</th>
+                <th>Site</th>
+                {!compact && <th>Scheduled (local)</th>}
+                <th>Evidence status</th>
+                <th className="align-right">Job value</th>
+                <th>
+                  <span className="sr-only">Open</span>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {missions.map((m) => (
+                <tr
+                  key={m.id}
+                  onClick={() => setModal({ type: "mission", mission: m })}
+                >
+                  <td>
+                    <button
+                      className="table-title"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setModal({ type: "mission", mission: m });
+                      }}
+                    >
+                      {m.name}
+                    </button>
+                    <span className="cell-sub">{m.client}</span>
+                  </td>
+                  <td>
+                    <span className="site-cell">
+                      <MapPin size={13} />
+                      {current.sites.find((s) => s.id === m.siteId)?.name ||
+                        "Unknown site"}
+                    </span>
+                  </td>
+                  {!compact && (
+                    <td className="mono small-text">{date(m.scheduledAt)}</td>
+                  )}
+                  <td>
+                    <Badge status={m.assessment.status} />
+                  </td>
+                  <td className="align-right mono">{money(m.value)}</td>
+                  <td>
+                    <ChevronRight size={15} className="muted" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    ) : page === "missions" && current.missions.length ? (
+      <Empty
+        title="No missions match your filters"
+        body="Try a different mission, client or site name, or clear the status filter."
+        action={
+          <button
+            className="button secondary"
+            onClick={() => {
+              setSearch("");
+              setFilter("all");
+            }}
+          >
+            Clear filters
+          </button>
+        }
+      />
     ) : (
       <Empty
         title="No missions here yet"
@@ -731,8 +1013,26 @@ export default function App() {
   }
   return (
     <div className="app-shell">
-      <aside className={`sidebar ${navOpen ? "open" : ""}`}>
-        <Brand small />
+      <aside
+        ref={navRef}
+        id="workspace-navigation"
+        inert={compactNavigation && !navOpen}
+        aria-hidden={compactNavigation && !navOpen ? true : undefined}
+        role={compactNavigation && navOpen ? "dialog" : undefined}
+        aria-modal={compactNavigation && navOpen ? true : undefined}
+        aria-label="Workspace navigation"
+        className={`sidebar ${navOpen ? "open" : ""}`}
+      >
+        <div className="sidebar-brand">
+          <Brand small />
+          <button
+            className="icon-button nav-close"
+            aria-label="Close navigation"
+            onClick={() => setNavOpen(false)}
+          >
+            <X size={19} />
+          </button>
+        </div>
         <button
           className="workspace-switch"
           onClick={() => navigate("settings")}
@@ -765,9 +1065,12 @@ export default function App() {
             >
               <Icon size={18} />
               <span>{labels[id]}</span>
-              {id === "review" && reviewSources.length > 0 && (
-                <span className="nav-count">{reviewSources.length}</span>
-              )}
+              {id === "review" &&
+                reviewSources.length + signoffQueue.length > 0 && (
+                  <span className="nav-count" aria-hidden="true">
+                    {reviewSources.length + signoffQueue.length}
+                  </span>
+                )}
             </button>
           ))}
         </nav>
@@ -800,10 +1103,7 @@ export default function App() {
               onClick={async () => {
                 try {
                   await api("/auth/logout", {});
-                  setUser(null);
-                  setState(null);
-                  setPage("overview");
-                  setNavOpen(false);
+                  clearWorkspace();
                 } catch (e) {
                   notify((e as Error).message, true);
                 }
@@ -823,6 +1123,8 @@ export default function App() {
             <button
               className="mobile-menu icon-button"
               aria-label="Open navigation"
+              aria-expanded={navOpen}
+              aria-controls="workspace-navigation"
               onClick={() => setNavOpen(!navOpen)}
             >
               <Menu size={20} />
@@ -856,7 +1158,19 @@ export default function App() {
             </IconButton>
           </div>
         </header>
-        <main className="main-content">
+        <main className="main-content" id="main-content">
+          {connectionIssue && (
+            <div className="callout error" role="status">
+              <TriangleAlert size={17} />
+              <p>{connectionIssue}</p>
+              <button
+                className="text-button"
+                onClick={() => refresh().catch((e) => notify(e.message, true))}
+              >
+                Retry connection
+              </button>
+            </div>
+          )}
           <div className="page-heading">
             <div>
               <span className="eyebrow">
@@ -906,13 +1220,83 @@ export default function App() {
                 </button>
               ) : page === "review" ? (
                 <span className="review-total">
-                  {reviewSources.length} awaiting attention
+                  {reviewSources.length} sources · {signoffQueue.length}{" "}
+                  signoffs
                 </span>
               ) : null}
             </div>
           </div>
           {page === "overview" && (
             <>
+              {!user.demo &&
+                (!current.sites.length ||
+                  !current.sources.length ||
+                  !current.missions.length) && (
+                  <section className="onboarding-panel">
+                    <div>
+                      <span className="eyebrow">GET YOUR FIRST JOB READY</span>
+                      <h2>A site. Its evidence. A recorded decision.</h2>
+                      <p>
+                        Add the operating location, preserve what you rely on,
+                        then connect it to a mission.
+                      </p>
+                    </div>
+                    <ol className="setup-steps">
+                      <li className={current.sites.length ? "complete" : ""}>
+                        <span>
+                          {current.sites.length ? <Check size={16} /> : "1"}
+                        </span>
+                        <div>
+                          <strong>Add an operating site</strong>
+                          <p>The location where your team plans to work.</p>
+                        </div>
+                        <button
+                          className="text-button"
+                          onClick={() => setModal({ type: "newSite" })}
+                        >
+                          {current.sites.length ? "Add another" : "Add site"}
+                          <ArrowRight size={15} />
+                        </button>
+                      </li>
+                      <li className={current.sources.length ? "complete" : ""}>
+                        <span>
+                          {current.sources.length ? <Check size={16} /> : "2"}
+                        </span>
+                        <div>
+                          <strong>Keep the evidence</strong>
+                          <p>A public source or an operator-supplied record.</p>
+                        </div>
+                        <button
+                          className="text-button"
+                          onClick={() => {
+                            navigate("evidence");
+                            if (!current.sources.length)
+                              setModal({ type: "newSource" });
+                          }}
+                        >
+                          {current.sources.length
+                            ? "View evidence"
+                            : "Add evidence"}
+                          <ArrowRight size={15} />
+                        </button>
+                      </li>
+                      <li>
+                        <span>3</span>
+                        <div>
+                          <strong>Connect a mission</strong>
+                          <p>Choose its sources, review them and sign off.</p>
+                        </div>
+                        <button
+                          className="text-button"
+                          onClick={() => setModal({ type: "newMission" })}
+                        >
+                          Plan mission
+                          <ArrowRight size={15} />
+                        </button>
+                      </li>
+                    </ol>
+                  </section>
+                )}
               <section className="stats-grid">
                 <div className="stat-card">
                   <div className="stat-label">
@@ -980,7 +1364,7 @@ export default function App() {
                     </span>
                     <h3>
                       {held.length
-                        ? `${held.length} missions need a fresh decision.`
+                        ? `${held.length} ${held.length === 1 ? "mission needs" : "missions need"} a fresh decision.`
                         : "What if the site closes after you approve the job?"}
                     </h3>
                     <p>
@@ -1118,6 +1502,7 @@ export default function App() {
                     <button
                       key={s}
                       className={filter === s ? "selected" : ""}
+                      aria-pressed={filter === s}
                       onClick={() => setFilter(s)}
                     >
                       {s === "all" ? "All missions" : statusLabels[s]}
@@ -1136,7 +1521,10 @@ export default function App() {
               </div>
               {missionTable(filtered)}
               <div className="table-footer">
-                <span>{filtered.length} missions shown</span>
+                <span>
+                  {filtered.length}{" "}
+                  {filtered.length === 1 ? "mission" : "missions"} shown
+                </span>
                 <button
                   className="text-button"
                   onClick={() => setModal({ type: "newSite" })}
@@ -1149,6 +1537,15 @@ export default function App() {
           {page === "evidence" && (
             <>
               <div className="evidence-toolbar">
+                <label className="search-field">
+                  <Search size={16} />
+                  <input
+                    aria-label="Search evidence"
+                    value={sourceSearch}
+                    onChange={(event) => setSourceSearch(event.target.value)}
+                    placeholder="Find a source or document"
+                  />
+                </label>
                 <div className="info-inline">
                   <ShieldCheck size={17} /> A capture is evidence. A review is a
                   separate decision.
@@ -1167,7 +1564,7 @@ export default function App() {
                 </label>
               </div>
               <div className="source-grid">
-                {current.sources.map((s) => (
+                {filteredSources.map((s) => (
                   <SourceCard
                     key={s.id}
                     source={s}
@@ -1188,11 +1585,27 @@ export default function App() {
                   />
                 ))}
               </div>
+              {current.sources.length > 0 && !filteredSources.length && (
+                <section className="panel">
+                  <Empty
+                    title="No evidence matches your search"
+                    body="Search a source title, document reference, category or website."
+                    action={
+                      <button
+                        className="button secondary"
+                        onClick={() => setSourceSearch("")}
+                      >
+                        Clear search
+                      </button>
+                    }
+                  />
+                </section>
+              )}
               {!current.sources.length && (
                 <section className="panel">
                   <Empty
                     title="Start with the source of truth"
-                    body="Add an official public page your operating process depends on. Government sources are supported for live capture."
+                    body="Add an official public page, or record the conditions from written site permission or insurance evidence you hold."
                     action={
                       <button
                         className="button primary"
@@ -1245,18 +1658,18 @@ export default function App() {
                         <div>
                           <h3>{s.title}</h3>
                           <span className="tiny-pill">
-                            {s.fixture ? "DEMO FIXTURE" : "LIVE SOURCE"}
+                            {s.fixture
+                              ? "DEMO FIXTURE"
+                              : s.kind === "record"
+                                ? "OPERATOR RECORD"
+                                : "PUBLIC SOURCE"}
                           </span>
                         </div>
                         <p>
-                          {s.lastError ||
-                            (!s.latest
-                              ? "No captured evidence"
-                              : s.reviewDecision === "blocked"
-                                ? "A reviewer has held this evidence"
-                                : s.reviewedHash !== s.latest.hash
-                                  ? "The captured version does not have a current accepted review"
-                                  : "Evidence has exceeded its freshness window")}
+                          {captureIssue(s, current.serverTime) ||
+                            (s.reviewedHash !== s.latest?.hash
+                              ? "New content needs a review before its missions can be signed off."
+                              : "A reviewer recorded a hold for the current evidence.")}
                         </p>
                       </div>
                       <div className="review-row-impact">
@@ -1278,8 +1691,16 @@ export default function App() {
               ) : (
                 <section className="panel">
                   <Empty
-                    title="The desk is clear"
-                    body="All captured sources have current accepted reviews. Mission signoffs are still checked separately."
+                    title={
+                      signoffQueue.length
+                        ? "Sources checked. Complete the mission signoffs below."
+                        : "The review desk is clear"
+                    }
+                    body={
+                      signoffQueue.length
+                        ? "An accepted source is the first step. Each mission still needs its own decision against the current evidence."
+                        : "Sources have current reviews and there are no eligible missions awaiting signoff."
+                    }
                     action={
                       user.demo ? (
                         <button
@@ -1291,6 +1712,22 @@ export default function App() {
                       ) : undefined
                     }
                   />
+                </section>
+              )}
+              {signoffQueue.length > 0 && (
+                <section className="panel signoff-queue">
+                  <div className="panel-heading">
+                    <div>
+                      <span className="eyebrow">NEXT STEP</span>
+                      <h2>Ready for a mission signoff</h2>
+                      <span>
+                        Source reviews are complete. Open each mission and
+                        record your decision.
+                      </span>
+                    </div>
+                    <span className="heading-count">{signoffQueue.length}</span>
+                  </div>
+                  {missionTable(signoffQueue, true)}
                 </section>
               )}
             </>
@@ -1339,7 +1776,9 @@ export default function App() {
                   <span className="mono">
                     {lab ? "LATEST RUN" : "AWAITING FIRST RUN"}
                   </span>
-                  <strong>{lab ? `${lab.passed}/${lab.total}` : "—"}</strong>
+                  <strong>
+                    {lab ? `${lab.passed}/${lab.total}` : "Not run"}
+                  </strong>
                   <p>
                     {lab
                       ? `Scenarios passed · ${lab.durationMs.toFixed(1)} ms`
@@ -1601,6 +2040,12 @@ export default function App() {
                   aircraft, or replace the remote pilot’s checks.
                 </p>
               </section>
+              {!user.demo && (
+                <AccountSecurity
+                  onRecoveryKey={setRecoveryKey}
+                  onSignedOut={clearWorkspace}
+                />
+              )}
               <section className="panel roi-panel">
                 <div>
                   <span className="eyebrow">COMMERCIAL HYPOTHESIS</span>
@@ -1701,6 +2146,7 @@ export default function App() {
       </div>
       {selectedSource && (
         <SourceDialog
+          key={selectedSource.id}
           source={selectedSource}
           state={current}
           busy={busy}
@@ -1713,10 +2159,10 @@ export default function App() {
               true,
             )
           }
-          onCapture={() =>
+          onCapture={(selectedProvider) =>
             mutate(
               `/sources/${selectedSource.id}/capture`,
-              { provider },
+              { provider: selectedProvider },
               "New snapshot captured.",
             )
           }
@@ -1732,10 +2178,12 @@ export default function App() {
           onEditRecord={() =>
             setModal({ type: "editRecord", source: selectedSource })
           }
+          onMission={(mission) => setModal({ type: "mission", mission })}
         />
       )}
       {selectedMission && (
         <MissionDialog
+          key={selectedMission.id}
           mission={selectedMission}
           state={current}
           busy={busy}
@@ -1880,6 +2328,19 @@ export default function App() {
           onSite={() => setModal({ type: "newSite" })}
           onSource={() => setModal({ type: "newSource" })}
         />
+      )}
+      {recoveryKey && (
+        <ModalFrame
+          title="Save your recovery key"
+          eyebrow="ACCOUNT ACCESS"
+          onClose={() => {}}
+          dismissible={false}
+        >
+          <RecoveryKey
+            recoveryKey={recoveryKey}
+            onDone={() => setRecoveryKey(null)}
+          />
+        </ModalFrame>
       )}
       {toast && (
         <div
@@ -2082,7 +2543,7 @@ function SourceCard({
       <div className="source-meta">
         <span>
           <Link2 size={13} />
-          {count} linked missions
+          {count} linked {count === 1 ? "mission" : "missions"}
         </span>
         <span>
           <Clock3 size={13} />
@@ -2132,24 +2593,31 @@ function SourceDialog({
   onCapture,
   onMonitor,
   onEditRecord,
+  onMission,
 }: {
   source: EvidenceSource;
   state: AppState;
   busy: string;
   onClose: () => void;
   onReview: (body: unknown) => void;
-  onCapture: () => void;
+  onCapture: (provider: "direct" | "anakin") => void;
   onMonitor: (body: unknown) => void;
   onEditRecord: () => void;
+  onMission: (mission: Mission) => void;
 }) {
   const [reviewHash, setReviewHash] = useState(s.latest?.hash);
   const reviewOutdated = reviewHash !== s.latest?.hash;
   const [interval, setIntervalHours] = useState(s.monitor?.intervalHours || 6);
   const [monitorProvider, setMonitorProvider] = useState<"direct" | "anakin">(
-    s.monitor?.provider || "direct",
+    s.monitor?.provider ||
+      (s.latest?.provider === "anakin" ? "anakin" : "direct"),
   );
   const [decision, setDecision] = useState<"accepted" | "blocked">("blocked");
   const [note, setNote] = useState("");
+  const [captureProvider, setCaptureProvider] = useState<"direct" | "anakin">(
+    s.latest?.provider === "anakin" ? "anakin" : "direct",
+  );
+  const reviewIssue = captureIssue(s, state.serverTime);
   const linked = state.missions.filter((m) => m.sourceIds.includes(s.id));
   return (
     <ModalFrame
@@ -2166,7 +2634,8 @@ function SourceDialog({
             : s.latest?.provider.toUpperCase() || "LIVE SOURCE"}
         </span>
         <span className="muted small-text">
-          {linked.length} dependent missions
+          {linked.length} dependent{" "}
+          {linked.length === 1 ? "mission" : "missions"}
         </span>
         {!s.fixture && s.kind !== "record" && (
           <a
@@ -2179,6 +2648,34 @@ function SourceDialog({
           </a>
         )}
       </div>
+      {!s.fixture && s.kind !== "record" && (
+        <div className="capture-controls">
+          <label>
+            Capture provider
+            <select
+              value={captureProvider}
+              onChange={(event) =>
+                setCaptureProvider(event.target.value as "direct" | "anakin")
+              }
+            >
+              <option value="direct">Direct government source</option>
+              <option value="anakin">Anakin API</option>
+            </select>
+          </label>
+          <button
+            className="button secondary"
+            disabled={!!busy}
+            onClick={() => onCapture(captureProvider)}
+          >
+            <RefreshCw size={16} />
+            {s.latest ? "Capture latest version" : "Capture source"}
+          </button>
+          <p className="field-help">
+            Keep the current source text, timestamp and provider together.
+            Capture again to recover from a failed or outdated check.
+          </p>
+        </div>
+      )}
       {s.kind === "record" && (
         <div className="record-notice">
           <FileText size={17} />
@@ -2286,14 +2783,24 @@ function SourceDialog({
               </div>
             </div>
           </div>
+          <SourceHistory
+            key={s.latest.id}
+            sourceId={s.id}
+            currentHash={s.latest.hash}
+          />
           <div className="linked-missions">
             <span className="eyebrow">DEPENDENT WORK</span>
             <div>
               {linked.map((m) => (
-                <span key={m.id}>
+                <button
+                  key={m.id}
+                  className="dependent-mission"
+                  onClick={() => onMission(m)}
+                >
                   {m.name}
                   <Badge status={m.assessment.status} />
-                </span>
+                  <ChevronRight size={14} />
+                </button>
               ))}
             </div>
             {!linked.length && (
@@ -2310,6 +2817,11 @@ function SourceDialog({
             }}
           >
             <h3>Your evidence decision</h3>
+            {reviewIssue && (
+              <p className="inline-error" role="status">
+                {reviewIssue}
+              </p>
+            )}
             {reviewOutdated && (
               <div className="callout">
                 <TriangleAlert size={17} />
@@ -2384,7 +2896,7 @@ function SourceDialog({
               </span>
               <button
                 className="button primary"
-                disabled={!!busy || reviewOutdated}
+                disabled={!!busy || reviewOutdated || !!reviewIssue}
               >
                 {busy ? (
                   <Loader2 className="spin" size={16} />
@@ -2400,17 +2912,6 @@ function SourceDialog({
         <Empty
           title="No evidence captured yet"
           body="Capture the public page to preserve a timestamped version for review."
-          action={
-            !s.fixture ? (
-              <button
-                className="button primary"
-                onClick={onCapture}
-                disabled={!!busy}
-              >
-                <RefreshCw size={16} /> Capture source
-              </button>
-            ) : undefined
-          }
         />
       )}
     </ModalFrame>
@@ -2511,7 +3012,10 @@ function MissionDialog({
         </div>
       )}
       <h3 className="section-small-title">
-        Evidence dependencies <span>{sources.length} sources</span>
+        Evidence dependencies{" "}
+        <span>
+          {sources.length} {sources.length === 1 ? "source" : "sources"}
+        </span>
       </h3>
       <div className="mission-sources">
         {sources.map((s) => (
@@ -3017,6 +3521,9 @@ function CreateMission({
   initial?: Mission;
 }) {
   const [ids, setIds] = useState<string[]>(initial?.sourceIds || []);
+  const [siteId, setSiteId] = useState(
+    initial?.siteId ?? state.sites[0]?.id ?? "",
+  );
   if (!state.sites.length || !state.sources.length)
     return (
       <ModalFrame
@@ -3108,7 +3615,21 @@ function CreateMission({
         </div>
         <label>
           Operating site
-          <select name="siteId" defaultValue={initial?.siteId} required>
+          <select
+            name="siteId"
+            value={siteId}
+            onChange={(event) => {
+              const next = event.target.value;
+              setSiteId(next);
+              setIds((previous) =>
+                previous.filter((id) => {
+                  const source = state.sources.find((item) => item.id === id);
+                  return source && (!source.siteId || source.siteId === next);
+                }),
+              );
+            }}
+            required
+          >
             {state.sites.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}
@@ -3139,26 +3660,33 @@ function CreateMission({
             Required evidence{" "}
             <span>Choose every source this mission depends on</span>
           </legend>
-          {state.sources.map((s) => (
-            <label key={s.id}>
-              <input
-                type="checkbox"
-                checked={ids.includes(s.id)}
-                onChange={(e) =>
-                  setIds(
-                    e.target.checked
-                      ? [...ids, s.id]
-                      : ids.filter((id) => id !== s.id),
-                  )
-                }
-              />
-              <span>
-                {s.title}
-                <small>{categoryLabels[s.category]}</small>
-              </span>
-            </label>
-          ))}
+          {state.sources
+            .filter((source) => !source.siteId || source.siteId === siteId)
+            .map((s) => (
+              <label key={s.id}>
+                <input
+                  type="checkbox"
+                  checked={ids.includes(s.id)}
+                  onChange={(e) =>
+                    setIds(
+                      e.target.checked
+                        ? [...ids, s.id]
+                        : ids.filter((id) => id !== s.id),
+                    )
+                  }
+                />
+                <span>
+                  {s.title}
+                  <small>{categoryLabels[s.category]}</small>
+                </span>
+              </label>
+            ))}
         </fieldset>
+        <p className="field-help" aria-live="polite">
+          {ids.length
+            ? `${ids.length} required ${ids.length === 1 ? "source selected" : "sources selected"}. Each source needs a current review before mission signoff.`
+            : "Select at least one required source. Only workspace-wide evidence and evidence for this site are shown."}
+        </p>
         <button className="button primary" disabled={busy || !ids.length}>
           <Plus size={16} />
           {initial ? "Save changes" : "Create mission"}

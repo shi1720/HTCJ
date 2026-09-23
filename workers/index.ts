@@ -8,6 +8,8 @@ import { cleanupExpiredData } from "../server/maintenance.js";
 import { nextMonitorAt, runDueCaptures } from "../server/monitoring.js";
 import { DurableSqlite } from "./sqlite.js";
 import { workerCapture } from "./capture.js";
+import { trustedGatewayNetwork } from "./gateway.js";
+import { sessionUser } from "../server/auth.js";
 
 interface Env {
   GROUNDPROOF: DurableObjectNamespace<GroundProofDatabase>;
@@ -15,6 +17,7 @@ interface Env {
   PUBLIC_ORIGIN?: string;
   ANAKIN_API_KEY?: string;
   ANAKIN_DAILY_LIMIT?: string;
+  FIREBASE_GATEWAY_SECRET?: string;
 }
 
 const securityHeaders = {
@@ -71,10 +74,18 @@ export class GroundProofDatabase extends DurableObject<Env> {
       maintenanceOnStart: false,
       logger: false,
       anakinConfigured: Boolean(this.env.ANAKIN_API_KEY?.trim()),
-      rateLimitKeyGenerator: (request) =>
-        typeof request.headers["x-groundproof-client-ip"] === "string"
+      rateLimitKeyGenerator: (request) => {
+        if (request.headers["x-groundproof-trusted-gateway"] === "1") {
+          const actor = sessionUser(
+            this.db,
+            request.cookies.groundproof_session,
+          );
+          if (actor) return `firebase-account:${actor.id}`;
+        }
+        return typeof request.headers["x-groundproof-client-ip"] === "string"
           ? request.headers["x-groundproof-client-ip"]
-          : request.ip,
+          : request.ip;
+      },
       capture: workerCapture(this.env.ANAKIN_API_KEY),
     }).then(async (app) => {
       await app.ready();
@@ -145,11 +156,24 @@ export default {
       const headers = new Headers(request.headers);
       // Cloudflare overwrites CF-Connecting-IP at the public edge. Never trust a
       // caller-supplied internal header or X-Forwarded-For inside the HTTP bridge.
-      const clientIp = request.headers.get("cf-connecting-ip") || "";
+      const gatewayNetwork = trustedGatewayNetwork(
+        request,
+        env.FIREBASE_GATEWAY_SECRET,
+      );
+      const clientIp =
+        gatewayNetwork || request.headers.get("cf-connecting-ip") || "";
       headers.set(
         "x-groundproof-client-ip",
         isIP(clientIp) ? clientIp : "127.0.0.1",
       );
+      headers.delete("x-groundproof-trusted-gateway");
+      if (gatewayNetwork) headers.set("x-groundproof-trusted-gateway", "1");
+      for (const name of [
+        "x-groundproof-gateway-time",
+        "x-groundproof-gateway-network",
+        "x-groundproof-gateway-signature",
+      ])
+        headers.delete(name);
       return env.GROUNDPROOF.get(id).fetch(new Request(request, { headers }));
     }
     const asset = await env.ASSETS.fetch(request);

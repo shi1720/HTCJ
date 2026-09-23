@@ -31,7 +31,7 @@ describe("Durable SQL application adapter", () => {
   it("keeps schema version, named bindings, changes and unique error semantics", () => {
     const { db, native } = adapter();
     initializeDatabase(db as unknown as Db);
-    expect(db.pragma("user_version", { simple: true })).toBe(4);
+    expect(db.pragma("user_version", { simple: true })).toBe(5);
     const row = {
       id: "user1",
       name: "O'Brien @id",

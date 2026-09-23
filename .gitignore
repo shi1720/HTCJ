@@ -15,3 +15,5 @@ work/
 workers/env.d.ts
 .recordings/
 outputs/
+.firebase/
+firebase-debug.log

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { buildApp } from "../server/app.js";
 import { verifyPacket } from "../scripts/verify-packet.js";
-import { hashContent } from "../server/evidence.js";
+import { hashContent, hashManifest } from "../server/evidence.js";
 import type { AppState, EvidenceSource } from "../shared/types.js";
 
 const apps: Awaited<ReturnType<typeof buildApp>>[] = [];
@@ -39,7 +39,7 @@ async function setup() {
   const input = {
     title: "Owner access permission excerpt",
     content: original,
-    reference: "Signed letter ACCESS-2026-09 — original retained by operator",
+    reference: "Signed letter ACCESS-2026-09 - original retained by operator",
     category: "site-access",
     siteId: site.id,
     freshnessHours: 24,
@@ -309,5 +309,17 @@ describe("operator-supplied text evidence records", () => {
     expect(verified.valid).toBe(true);
     expect(packet.sources[0].latest.provider).toBe("manual");
     expect(verified.scope).toContain("not a digital signature");
+    // Old exports remain verifiable without modifying their historical bytes.
+    const snapshot = packet.sources[0].latest;
+    snapshot.content = snapshot.content.replace(
+      "RECORD - NOT",
+      `RECORD ${String.fromCharCode(0x2014)} NOT`,
+    );
+    snapshot.hash = hashContent(snapshot.content);
+    packet.sources[0].reviewedHash = snapshot.hash;
+    packet.mission.approval.hashes[test.source.id] = snapshot.hash;
+    const { manifest, ...payload } = packet;
+    packet.manifest = { ...manifest, hash: hashManifest(payload) };
+    expect(verifyPacket(packet).valid).toBe(true);
   });
 });

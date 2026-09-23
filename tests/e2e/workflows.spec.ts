@@ -57,6 +57,25 @@ async function startDemo(page: Page) {
   ).toBeVisible();
 }
 
+async function saveRecoveryKey(page: Page) {
+  await expect(
+    page.getByRole("dialog", { name: "Save your recovery key" }),
+  ).toBeVisible();
+  const key = await page
+    .getByRole("textbox", { name: "Account recovery key" })
+    .inputValue();
+  await page
+    .getByRole("checkbox", {
+      name: "I have saved my recovery key somewhere private",
+    })
+    .check();
+  await page
+    .getByRole("button", { name: "Continue to workspace", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  return key;
+}
+
 async function currentState(page: Page) {
   const response = await page.request.get("/api/state");
   expect(response.ok()).toBeTruthy();
@@ -96,7 +115,7 @@ async function captureScreenshot(page: Page, filename: string) {
   if (await dismiss.isVisible()) await dismiss.click();
   const viewport = page.viewportSize();
   if (filename === "source-review.png" && viewport)
-    await page.setViewportSize({ ...viewport, height: 1100 });
+    await page.setViewportSize({ ...viewport, height: 1300 });
   await settleTransitions(page);
   await page.screenshot({
     path: resolve(outputs, filename),
@@ -302,6 +321,7 @@ test("new account → real source capture → mission review → logout and logi
   await expect(
     page.getByRole("heading", { name: "Every mission. A current reason." }),
   ).toBeVisible();
+  await saveRecoveryKey(page);
   expect((await currentState(page)).missions).toHaveLength(0);
 
   await page.getByRole("button", { name: "New mission", exact: true }).click();
@@ -553,7 +573,7 @@ test("operator record → expiry blocks planned job → version update → separ
     })
     .click();
   await expect(page.locator(".snapshot.current pre")).toContainText(
-    "OPERATOR-SUPPLIED RECORD — NOT INDEPENDENTLY VERIFIED",
+    "OPERATOR-SUPPLIED RECORD - NOT INDEPENDENTLY VERIFIED",
   );
   await page
     .getByRole("radio", {
@@ -692,4 +712,275 @@ test("operator record → expiry blocks planned job → version update → separ
   );
   expect(changed.approval).toBeNull();
   expect(changed.assessment.status).toBe("review");
+});
+
+test("review desk keeps the next signoffs visible, with searchable evidence and archived versions", async ({
+  page,
+}) => {
+  await startDemo(page);
+  await navigate(page, "Mission board");
+  await page
+    .getByRole("textbox", { name: "Search missions" })
+    .fill("nothing-matches-this-job");
+  await expect(
+    page.getByRole("heading", { name: "No missions match your filters" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Clear filters", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: primaryMission, exact: true }),
+  ).toBeVisible();
+  await navigate(page, "Operations overview");
+  await page.getByRole("button", { name: "Simulate site closure" }).click();
+  await expect(
+    page.getByRole("heading", { name: "3 missions need a fresh decision." }),
+  ).toBeVisible();
+  await navigate(page, "Evidence library");
+  await page.getByRole("textbox", { name: "Search evidence" }).fill("Harbor");
+  await expect(page.locator(".source-card")).toHaveCount(1);
+  await page.getByRole("button", { name: notice, exact: true }).click();
+  await page
+    .getByRole("button", { name: "Capture history Inspect earlier versions" })
+    .click();
+  await expect(page.locator(".history-entry")).toHaveCount(2);
+  await page.locator(".history-entry").last().locator("summary").click();
+  await expect(
+    page.locator(".history-entry").last().locator("pre"),
+  ).toContainText("Revision A");
+  await auditA11y(page, "Expanded source history accessibility");
+  await page
+    .locator(".linked-missions")
+    .getByRole("button", { name: new RegExp(primaryMission) })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: primaryMission, exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  await navigate(page, "Proof lab");
+  await page
+    .getByRole("button", {
+      name: "Updated access notice Recover with a new version",
+    })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "3 missions need a fresh decision." }),
+  ).toBeVisible();
+  await navigate(page, "Evidence library");
+  await page.getByRole("button", { name: notice, exact: true }).click();
+  await page
+    .getByRole("radio", {
+      name: "Accept evidence Record a checked, current source",
+    })
+    .check();
+  await page
+    .getByRole("textbox", { name: "Review note", exact: true })
+    .fill(
+      "Reviewed the updated fictional source for this navigation workflow test.",
+    );
+  await page.getByRole("button", { name: "Record decision" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await navigate(page, "Review desk");
+  await expect(
+    page.getByRole("heading", { name: "Ready for a mission signoff" }),
+  ).toBeVisible();
+  await expect(page.locator(".signoff-queue .heading-count")).toHaveText("3");
+  await page
+    .locator(".signoff-queue")
+    .getByRole("button", { name: primaryMission, exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Sign off current evidence" }),
+  ).toBeEnabled();
+});
+
+test("recovery key, password change, key rotation and account recovery work end to end", async ({
+  page,
+}, testInfo) => {
+  test.setTimeout(120_000);
+  const email = `security-${Date.now()}-${testInfo.project.name}@example.com`;
+  const original = "Original-browser-passphrase-2026";
+  const changed = "Changed-browser-passphrase-2026";
+  const recovered = "Recovered-browser-passphrase-2026";
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Create workspace", exact: true })
+    .click();
+  await page
+    .getByLabel("Your name", { exact: true })
+    .fill("Security Test Operator");
+  await page
+    .getByLabel("Workspace name", { exact: true })
+    .fill("Security Browser Workspace");
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByLabel("Password", { exact: true }).fill(original);
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Create workspace", exact: true })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: "Save your recovery key" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Continue to workspace", exact: true }),
+  ).toBeDisabled();
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download key", exact: true }).click();
+  expect((await download).suggestedFilename()).toBe(
+    "groundproof-recovery-key.txt",
+  );
+  await auditA11y(page, "Recovery key onboarding accessibility");
+  const oldKey = await saveRecoveryKey(page);
+  expect(oldKey).toMatch(/^GP-[A-F0-9]{64}$/);
+  await navigate(page, "Workspace settings");
+  await page
+    .locator(".security-panel summary")
+    .filter({ hasText: "Change password" })
+    .click();
+  await page.getByLabel("Current password", { exact: true }).fill(original);
+  await page.getByLabel("New password", { exact: true }).fill(changed);
+  await page
+    .getByRole("button", { name: "Update password", exact: true })
+    .click();
+  await expect(page.locator(".security-panel")).toContainText(
+    "Password changed. Other signed-in sessions have been ended.",
+  );
+  await page
+    .locator(".security-panel summary")
+    .filter({ hasText: "Replace recovery key" })
+    .click();
+  await page
+    .getByLabel("Confirm current password", { exact: true })
+    .fill(changed);
+  await page
+    .getByRole("button", { name: "Generate new recovery key", exact: true })
+    .click();
+  const newKey = await saveRecoveryKey(page);
+  expect(newKey).not.toBe(oldKey);
+  await auditA11y(page, "Account security accessibility");
+  await page
+    .locator(".security-panel summary")
+    .filter({ hasText: "Manage signed-in sessions" })
+    .click();
+  await page
+    .getByRole("button", { name: "Sign out everywhere", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Explore the working demo" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Forgot your password? Use a recovery key" })
+    .click();
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByLabel("Recovery key", { exact: true }).fill(oldKey);
+  await page.getByLabel("New password", { exact: true }).fill(recovered);
+  await page
+    .getByRole("button", { name: "Recover account", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toContainText(
+    "Email or recovery key is incorrect",
+  );
+  await page.getByLabel("Recovery key", { exact: true }).fill(newKey);
+  await page
+    .getByRole("button", { name: "Recover account", exact: true })
+    .click();
+  const replacement = await saveRecoveryKey(page);
+  expect(replacement).not.toBe(newKey);
+  expect((await currentState(page)).user.email).toBe(email);
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
+test("background refresh preserves typed review focus and mobile navigation stays keyboard-contained", async ({
+  page,
+}, testInfo) => {
+  await startDemo(page);
+  if (testInfo.project.name.startsWith("mobile")) {
+    await expect(page.locator("aside")).toHaveAttribute("inert", "");
+    await page.getByRole("button", { name: "Open navigation" }).click();
+    await expect(
+      page.getByRole("dialog", { name: "Workspace navigation" }),
+    ).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.locator("aside")).toHaveAttribute("inert", "");
+    await expect(
+      page.getByRole("button", { name: "Open navigation" }),
+    ).toBeFocused();
+  }
+  await navigate(page, "Evidence library");
+  await page.getByRole("button", { name: notice, exact: true }).click();
+  await page
+    .getByRole("textbox", { name: "Review note", exact: true })
+    .fill("A review note that must remain focused through background refresh.");
+  await page.waitForResponse(
+    (response) => response.url().endsWith("/api/state") && response.ok(),
+    { timeout: 40_000 },
+  );
+  await expect(
+    page.getByRole("textbox", { name: "Review note", exact: true }),
+  ).toBeFocused();
+  await expect(
+    page.getByRole("textbox", { name: "Review note", exact: true }),
+  ).toHaveValue(
+    "A review note that must remain focused through background refresh.",
+  );
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: notice, exact: true }),
+  ).toBeFocused();
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
+});
+
+test("a delayed error from a previous session cannot contaminate a new workspace", async ({
+  page,
+}) => {
+  await startDemo(page);
+  const originalUser = (await currentState(page)).user.id;
+  let release!: () => void;
+  let observed!: () => void;
+  const held = new Promise<void>((resolve) => {
+    observed = resolve;
+  });
+  const delayed = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let first = true;
+  await page.route("**/api/state", async (route) => {
+    if (!first) return route.fallback();
+    first = false;
+    observed();
+    await delayed;
+    await route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "The previous session ended." }),
+    });
+  });
+  await page.getByRole("button", { name: "Refresh workspace" }).click();
+  await held;
+  const menu = page.getByRole("button", { name: "Open navigation" });
+  if (await menu.isVisible()) await menu.click();
+  await page.getByRole("button", { name: "Sign out", exact: true }).click();
+  await page.getByRole("button", { name: "Explore the working demo" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Every mission. A current reason." }),
+  ).toBeVisible();
+  const oldResponse = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/state") && response.status() === 401,
+  );
+  release();
+  await oldResponse;
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  expect((await currentState(page)).user.id).not.toBe(originalUser);
+  await expect(
+    page.getByRole("heading", { name: "Every mission. A current reason." }),
+  ).toBeVisible();
 });

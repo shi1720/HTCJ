@@ -4,6 +4,7 @@ import { readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
+import { recordMetadataMatches } from "../server/record-format.js";
 import { assessMission } from "../server/evidence.js";
 
 const sha256 = (text: string) =>
@@ -255,8 +256,13 @@ export function verifyPacket(
           );
       }
     if (evidence.kind === "record" && evidence.latest) {
-      const prefix = `OPERATOR-SUPPLIED RECORD — NOT INDEPENDENTLY VERIFIED\nReference: ${evidence.reference}\nValid until: ${evidence.validUntil ?? "Not specified; configured freshness applies"}\n\n`;
-      if (!evidence.reference || !evidence.latest.content.startsWith(prefix))
+      if (
+        !recordMetadataMatches(
+          evidence.latest.content,
+          evidence.reference,
+          evidence.validUntil,
+        )
+      )
         result.errors.push(
           `${evidence.id}: record metadata does not match the hash-bound snapshot envelope.`,
         );

@@ -225,7 +225,7 @@ function decodeEntities(value: string): string {
     apos: "'",
     nbsp: " ",
     ndash: "–",
-    mdash: "—",
+    mdash: "\u2014",
     lsquo: "‘",
     rsquo: "’",
     ldquo: "“",
