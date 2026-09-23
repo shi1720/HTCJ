@@ -1,0 +1,58 @@
+[
+  {
+    "start": 0,
+    "end": 24,
+    "text": "A drone can be ready while the job is not. A crew arrives, but site access changed overnight. Yesterday's approval still looks complete. GroundProof, built by Shivam Gupta, connects each inspection job to the evidence behind it, and flags the jobs that need a fresh human decision.",
+    "title": "Yesterday’s approval. Today’s reality.",
+    "action": "Show the landing page, then enter a fresh isolated demonstration workspace at 00:12."
+  },
+  {
+    "start": 24,
+    "end": 46,
+    "text": "Here are six fictional inspection jobs across three sites. Open one job to see the access notice, checklist, and insurance evidence it depends on. GroundProof records exactly what was reviewed, when it was captured, and which version the person approved. Each signoff has a specific set of supporting evidence.",
+    "title": "Evidence behind the decision",
+    "action": "Open the mission board, the facade inspection, and its Harbor Works access notice. Show captured text, timestamp, and content hash."
+  },
+  {
+    "start": 46,
+    "end": 69,
+    "text": "Now a simulated site closure changes one notice. Exactly three jobs lose their previous approval. Their combined planned job value is forty-eight hundred dollars in this example. That is the work affected by the change, not a savings claim. The other three jobs keep their own evidence state.",
+    "title": "One changed source. Three affected jobs.",
+    "action": "Simulate the site closure, show the three affected jobs and $4,800 booked value, then return to the mission board."
+  },
+  {
+    "start": 69,
+    "end": 94,
+    "text": "An old signoff cannot be reused. The coordinator sees the earlier notice beside the current one, explains the decision, and keeps the jobs on hold. Missing, expired, blocked, or unavailable evidence also prevents signoff. These checks follow explicit rules. A language model does not decide whether an aircraft may fly.",
+    "title": "A human decision on a specific version",
+    "action": "Show disabled signoff and the changed source. Compare previous and current text. Record a hold with an explanatory note."
+  },
+  {
+    "start": 94,
+    "end": 123,
+    "text": "Next, restore the notice and accept the current evidence. Notice what does not happen: the old mission approval stays revoked. The coordinator must separately review and sign off this job again. The audit records each step. Operator-supplied permission records can also have an expiry date, checked against the planned job time.",
+    "title": "Review again. Then approve again.",
+    "action": "Restore an updated demonstration notice in the proof lab. Accept the source, then separately sign off one mission. Show the audit trail."
+  },
+  {
+    "start": 123,
+    "end": 153,
+    "text": "The decision packet preserves the exact evidence behind that fresh signoff. It includes an integrity check that can be verified outside the app. That checks the recorded content, not whether a document is genuine. Now a source fails. GroundProof keeps the last snapshot visible for investigation and holds the dependent work.",
+    "title": "A portable record, and a visible failure",
+    "action": "Export the completed mission decision packet. Then inject a source failure and inspect the retained snapshot and hold state."
+  },
+  {
+    "start": 153,
+    "end": 184,
+    "text": "The proof lab runs fifteen scenarios through the same evidence rules used by the application. Here are the actual results. Now we capture an official Boston page through Anakin. The source text, provider, time, and hash are recorded. This is a real web capture, separate from the fictional site-closure drill.",
+    "title": "Rules you can test. Sources you can trace.",
+    "action": "Run the proof lab and show the actual 15/15 outcome. Add the official Boston filming page, select Anakin, capture it, and show the genuine Anakin provenance and public-source text."
+  },
+  {
+    "start": 184,
+    "end": 210,
+    "text": "Our first target customer is a drone inspection operator coordinating repeat work across multiple sites. We propose one hundred ninety-nine dollars per month, then test that price against actual review time and useful alerts. We seek one operator for a four-week shadow pilot. GroundProof keeps internal approvals tied to current evidence. Flight decisions stay with the remote pilot.",
+    "title": "A practical first customer and pilot",
+    "action": "Open Workspace settings and show the commercial calculator, explicitly proposed $199 price, and planning-assumption disclosure."
+  }
+]

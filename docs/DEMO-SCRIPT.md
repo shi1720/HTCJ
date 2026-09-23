@@ -1,69 +1,67 @@
-# GroundProof — verbatim voiceover and recording guide
+# GroundProof: verbatim voiceover and recording guide
 
-Runtime: **3 minutes 30 seconds**. Narration: **436 words**, approximately 125 words per minute. Read the quoted text exactly. Record your voice against the supplied clean silent video; the separate SRT matches this script. The captioned MP4 adds these words in a reserved band below the interface and can be watched immediately without a voice track. Timing allows natural pauses.
+Runtime: **3 minutes 30 seconds**. Narration: **404 words** with deliberate pauses to inspect the interface. The completed video uses an explicitly disclosed AI narrator. The separate SRT is aligned to the spoken audio with word timestamps. All screen footage comes from the running application.
 
-The video shows the actual application at 1440 × 900. All demonstration jobs and notice changes are fictional and labeled. The Boston capture is genuinely retrieved through Anakin during recording. No account password or API key appears.
+The video shows the actual application at 1440 × 900. Demonstration jobs and notice changes are fictional and labeled. The Boston capture is genuinely retrieved through Anakin during recording. No password, recovery key, or API key appears.
 
-## 00:00–00:24 · Yesterday’s approval. Today’s reality.
+## 00:00 to 00:24 · Yesterday’s approval. Today’s reality.
 
-> I'm Shivam Gupta, and this is GroundProof. A drone inspection job can be approved yesterday and still depend on information that changes today. A site closes. A document expires. A required source stops responding. GroundProof connects every internal approval to the exact evidence behind it, so a changed fact cannot hide behind an old green status.
+> A drone can be ready while the job is not. A crew arrives, but site access changed overnight. Yesterday's approval still looks complete. GroundProof, built by Shivam Gupta, connects each inspection job to the evidence behind it, and flags the jobs that need a fresh human decision.
 
 Screen action: Show the landing page, then enter a fresh isolated demonstration workspace at 00:12.
 
-## 00:24–00:46 · Evidence behind the decision
+## 00:24 to 00:46 · Evidence behind the decision
 
-> These are six fictional inspection jobs. This mission depends on the Harbor Works access notice. We preserve the source text, capture time, and content hash. A reviewer accepts this exact version. The mission signoff records those same hashes, giving us a concrete answer to what someone approved, and when.
+> Here are six fictional inspection jobs across three sites. Open one job to see the access notice, checklist, and insurance evidence it depends on. GroundProof records exactly what was reviewed, when it was captured, and which version the person approved. Each signoff has a specific set of supporting evidence.
 
 Screen action: Open the mission board, the facade inspection, and its Harbor Works access notice. Show captured text, timestamp, and content hash.
 
-## 00:46–01:09 · One changed source. Three affected jobs.
+## 00:46 to 01:09 · One changed source. Three affected jobs.
 
-> Now I'll run a simulated closure. Three jobs depend on this source. GroundProof identifies those jobs and invalidates their earlier approval. Their combined booked value is forty-eight hundred dollars in this demonstration. That is affected work, not claimed savings. The remaining jobs keep their own evidence state.
+> Now a simulated site closure changes one notice. Exactly three jobs lose their previous approval. Their combined planned job value is forty-eight hundred dollars in this example. That is the work affected by the change, not a savings claim. The other three jobs keep their own evidence state.
 
 Screen action: Simulate the site closure, show the three affected jobs and $4,800 booked value, then return to the mission board.
 
-## 01:09–01:34 · A human decision on a specific version
+## 01:09 to 01:34 · A human decision on a specific version
 
-> The coordinator can inspect what changed and record a decision. GroundProof does not ask a language model whether a flight is safe. Deterministic checks enforce the workflow. Missing, stale, blocked, or unavailable evidence prevents approval. An open review cannot silently approve a source version that changed while someone was reading it.
+> An old signoff cannot be reused. The coordinator sees the earlier notice beside the current one, explains the decision, and keeps the jobs on hold. Missing, expired, blocked, or unavailable evidence also prevents signoff. These checks follow explicit rules. A language model does not decide whether an aircraft may fly.
 
 Screen action: Show disabled signoff and the changed source. Compare previous and current text. Record a hold with an explanatory note.
 
-## 01:34–02:03 · Review again. Then approve again.
+## 01:34 to 02:03 · Review again. Then approve again.
 
-> I'll restore the demonstration notice and review the current evidence. That review alone does not revive the old mission approval. I must approve the mission again against the latest version. Every step appears in the audit history, with the person and time attached. Operator-supplied permission records also support declared expiry, checked against the scheduled mission time.
+> Next, restore the notice and accept the current evidence. Notice what does not happen: the old mission approval stays revoked. The coordinator must separately review and sign off this job again. The audit records each step. Operator-supplied permission records can also have an expiry date, checked against the planned job time.
 
 Screen action: Restore an updated demonstration notice in the proof lab. Accept the source, then separately sign off one mission. Show the audit trail.
 
-## 02:03–02:33 · A portable record, and a visible failure
+## 02:03 to 02:33 · A portable record, and a visible failure
 
-> For a completed review, the exported evidence bundle preserves the referenced versions and an integrity manifest. Another person can verify whether that bundle has changed. A hash proves integrity, not that the source itself is true. A source failure is visible too. GroundProof keeps the previous snapshot for investigation, but holds the dependent work.
+> The decision packet preserves the exact evidence behind that fresh signoff. It includes an integrity check that can be verified outside the app. That checks the recorded content, not whether a document is genuine. Now a source fails. GroundProof keeps the last snapshot visible for investigation and holds the dependent work.
 
 Screen action: Export the completed mission decision packet. Then inject a source failure and inspect the retained snapshot and hold state.
 
-## 02:33–03:04 · Rules you can test. Sources you can trace.
+## 02:33 to 03:04 · Rules you can test. Sources you can trace.
 
-> The proof lab runs authored failure scenarios through the actual evidence rules. Here are the results. Now I am capturing an official Boston source through the Anakin web API. The provider, timestamp, text, and hash are preserved. This is a live capture, separate from the simulated notice changes. Direct public-source retrieval is also available, with its own provenance.
+> The proof lab runs fifteen scenarios through the same evidence rules used by the application. Here are the actual results. Now we capture an official Boston page through Anakin. The source text, provider, time, and hash are recorded. This is a real web capture, separate from the fictional site-closure drill.
 
 Screen action: Run the proof lab and show the actual 15/15 outcome. Add the official Boston filming page, select Anakin, capture it, and show the genuine Anakin provenance and public-source text.
 
-## 03:04–03:30 · A practical first customer and pilot
+## 03:04 to 03:30 · A practical first customer and pilot
 
-> We're building for drone inspection operators coordinating repeated work across multiple sites. Our proposed starting price is one hundred ninety-nine dollars per month. These savings inputs are assumptions to test. We seek one operator for a four-week shadow pilot to measure review time and useful change detection. GroundProof manages evidence and internal approval. The remote pilot remains responsible for flight decisions. Yesterday's approval. Today's evidence.
+> Our first target customer is a drone inspection operator coordinating repeat work across multiple sites. We propose one hundred ninety-nine dollars per month, then test that price against actual review time and useful alerts. We seek one operator for a four-week shadow pilot. GroundProof keeps internal approvals tied to current evidence. Flight decisions stay with the remote pilot.
 
 Screen action: Open Workspace settings and show the commercial calculator, explicitly proposed $199 price, and planning-assumption disclosure.
 
-## How to finish
+## Reproduce the video
 
-1. Import groundproof-demo-silent.mp4 into your preferred video editor.
-2. Record the narration one segment at a time, matching the timestamps above. Keep brief pauses at sentence boundaries.
-3. Import groundproof-demo-captions.srt as an optional subtitle track. These captions represent the supplied narration; keep them only if you read this version.
-4. Export MP4 with H.264 video and AAC audio. Check that the first and last words are audible and no private tabs or notifications were added.
-5. Upload the completed video to your chosen hosting service and place the public viewing link in the submission.
+1. Run the application, then node scripts/record-demo.mjs --url=https://groundproof-flight.web.app. Set DEMO_OUTPUT_DIR to choose the output directory. A successful live Anakin capture is required; the recorder never substitutes fixtures or changes provider labels.
+2. Set OPENAI_API_KEY_FILE to a private local file outside the repository, then run node scripts/narrate-demo.mjs. The key never enters product footage or deliverables.
+3. Run node scripts/align-demo-narration.mjs with the same output directory. This replaces draft subtitle timing with timestamps from the actual audio.
+4. Run node scripts/caption-demo.mjs, then mux the captioned footage and work/media/groundproof-narration.wav with H.264 video and AAC audio. Inspect exported frames, transcript, duration, and audio loudness.
+5. Upload groundproof-demo-narrated.mp4. Keep the AI voice disclosure and the distinction between fictional drills and real public-page capture.
 
-## Reproduce the silent screencast
+Use --rehearse for an accelerated UI check and --write-assets-only to regenerate the guide and draft captions without recording. Draft captions are not the final speech-aligned track.
 
-Run npm start, then node scripts/record-demo.mjs --url=http://localhost:3001. Generated deliverables default to work/recordings/deliverables inside the repository. Set DEMO_OUTPUT_DIR to an explicit output directory to choose another destination. A successful Anakin capture requires server-side provider availability. The recorder stops if live evidence cannot be captured; it never substitutes fixtures or relabels another provider. Use --rehearse for an accelerated UI check, and --write-assets-only to regenerate this guide and captions without recording.
+## Credit and scope
 
-## Submission video description
-
-GroundProof by Shivam Gupta. Working operational evidence management software for drone inspection teams, demonstrated with fictional jobs and explicit source-change simulations. Includes current-version review, approval invalidation, failure handling, operator-supplied records with expiry, audit history, verifiable evidence export, and genuine Anakin public-page capture. AI-assisted development. Commercial assumptions and proposed pilot are unvalidated. This application does not authorize or control flights.
+GroundProof by Shivam Gupta, built with AI-assisted development. Narrator generated using OpenAI text to speech; it is not a clone of Shivam or another person. Proposed pricing and pilot assumptions are unvalidated. The application manages internal evidence decisions and does not authorize or control flights.

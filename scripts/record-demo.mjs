@@ -1,6 +1,6 @@
 /** Records only this application's genuine UI. No fabricated data, results, or provider labels. */
 import { chromium, expect } from "@playwright/test";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
@@ -18,72 +18,9 @@ const url =
 const rehearse = args.includes("--rehearse");
 const assetsOnly = args.includes("--write-assets-only");
 const totalSeconds = 210;
-const scenes = [
-  {
-    start: 0,
-    end: 24,
-    title: "Yesterday’s approval. Today’s reality.",
-    action:
-      "Show the landing page, then enter a fresh isolated demonstration workspace at 00:12.",
-    text: "I'm Shivam Gupta, and this is GroundProof. A drone inspection job can be approved yesterday and still depend on information that changes today. A site closes. A document expires. A required source stops responding. GroundProof connects every internal approval to the exact evidence behind it, so a changed fact cannot hide behind an old green status.",
-  },
-  {
-    start: 24,
-    end: 46,
-    title: "Evidence behind the decision",
-    action:
-      "Open the mission board, the facade inspection, and its Harbor Works access notice. Show captured text, timestamp, and content hash.",
-    text: "These are six fictional inspection jobs. This mission depends on the Harbor Works access notice. We preserve the source text, capture time, and content hash. A reviewer accepts this exact version. The mission signoff records those same hashes, giving us a concrete answer to what someone approved, and when.",
-  },
-  {
-    start: 46,
-    end: 69,
-    title: "One changed source. Three affected jobs.",
-    action:
-      "Simulate the site closure, show the three affected jobs and $4,800 booked value, then return to the mission board.",
-    text: "Now I'll run a simulated closure. Three jobs depend on this source. GroundProof identifies those jobs and invalidates their earlier approval. Their combined booked value is forty-eight hundred dollars in this demonstration. That is affected work, not claimed savings. The remaining jobs keep their own evidence state.",
-  },
-  {
-    start: 69,
-    end: 94,
-    title: "A human decision on a specific version",
-    action:
-      "Show disabled signoff and the changed source. Compare previous and current text. Record a hold with an explanatory note.",
-    text: "The coordinator can inspect what changed and record a decision. GroundProof does not ask a language model whether a flight is safe. Deterministic checks enforce the workflow. Missing, stale, blocked, or unavailable evidence prevents approval. An open review cannot silently approve a source version that changed while someone was reading it.",
-  },
-  {
-    start: 94,
-    end: 123,
-    title: "Review again. Then approve again.",
-    action:
-      "Restore an updated demonstration notice in the proof lab. Accept the source, then separately sign off one mission. Show the audit trail.",
-    text: "I'll restore the demonstration notice and review the current evidence. That review alone does not revive the old mission approval. I must approve the mission again against the latest version. Every step appears in the audit history, with the person and time attached. Operator-supplied permission records also support declared expiry, checked against the scheduled mission time.",
-  },
-  {
-    start: 123,
-    end: 153,
-    title: "A portable record, and a visible failure",
-    action:
-      "Export the completed mission decision packet. Then inject a source failure and inspect the retained snapshot and hold state.",
-    text: "For a completed review, the exported evidence bundle preserves the referenced versions and an integrity manifest. Another person can verify whether that bundle has changed. A hash proves integrity, not that the source itself is true. A source failure is visible too. GroundProof keeps the previous snapshot for investigation, but holds the dependent work.",
-  },
-  {
-    start: 153,
-    end: 184,
-    title: "Rules you can test. Sources you can trace.",
-    action:
-      "Run the proof lab and show the actual 15/15 outcome. Add the official Boston filming page, select Anakin, capture it, and show the genuine Anakin provenance and public-source text.",
-    text: "The proof lab runs authored failure scenarios through the actual evidence rules. Here are the results. Now I am capturing an official Boston source through the Anakin web API. The provider, timestamp, text, and hash are preserved. This is a live capture, separate from the simulated notice changes. Direct public-source retrieval is also available, with its own provenance.",
-  },
-  {
-    start: 184,
-    end: 210,
-    title: "A practical first customer and pilot",
-    action:
-      "Open Workspace settings and show the commercial calculator, explicitly proposed $199 price, and planning-assumption disclosure.",
-    text: "We're building for drone inspection operators coordinating repeated work across multiple sites. Our proposed starting price is one hundred ninety-nine dollars per month. These savings inputs are assumptions to test. We seek one operator for a four-week shadow pilot to measure review time and useful change detection. GroundProof manages evidence and internal approval. The remote pilot remains responsible for flight decisions. Yesterday's approval. Today's evidence.",
-  },
-];
+const scenes = JSON.parse(
+  await readFile(resolve(root, "scripts/demo-scenes.json"), "utf8"),
+);
 
 function stamp(seconds, srt = false) {
   const ms = Math.round(seconds * 1000);
@@ -140,7 +77,7 @@ const wordCount = scenes.reduce(
   (n, scene) => n + scene.text.split(/\s+/).length,
   0,
 );
-const narration = `# GroundProof — verbatim voiceover and recording guide\n\nRuntime: **3 minutes 30 seconds**. Narration: **${wordCount} words**, approximately ${Math.round(wordCount / 3.5)} words per minute. Read the quoted text exactly. Record your voice against the supplied clean silent video; the separate SRT matches this script. The captioned MP4 adds these words in a reserved band below the interface and can be watched immediately without a voice track. Timing allows natural pauses.\n\nThe video shows the actual application at 1440 × 900. All demonstration jobs and notice changes are fictional and labeled. The Boston capture is genuinely retrieved through Anakin during recording. No account password or API key appears.\n\n${scenes.map((scene) => `## ${stamp(scene.start)}–${stamp(scene.end)} · ${scene.title}\n\n> ${scene.text}\n\nScreen action: ${scene.action}\n`).join("\n")}\n## How to finish\n\n1. Import groundproof-demo-silent.mp4 into your preferred video editor.\n2. Record the narration one segment at a time, matching the timestamps above. Keep brief pauses at sentence boundaries.\n3. Import groundproof-demo-captions.srt as an optional subtitle track. These captions represent the supplied narration; keep them only if you read this version.\n4. Export MP4 with H.264 video and AAC audio. Check that the first and last words are audible and no private tabs or notifications were added.\n5. Upload the completed video to your chosen hosting service and place the public viewing link in the submission.\n\n## Reproduce the silent screencast\n\nRun npm start, then node scripts/record-demo.mjs --url=http://localhost:3001. Generated deliverables default to work/recordings/deliverables inside the repository. Set DEMO_OUTPUT_DIR to an explicit output directory to choose another destination. A successful Anakin capture requires server-side provider availability. The recorder stops if live evidence cannot be captured; it never substitutes fixtures or relabels another provider. Use --rehearse for an accelerated UI check, and --write-assets-only to regenerate this guide and captions without recording.\n\n## Submission video description\n\nGroundProof by Shivam Gupta. Working operational evidence management software for drone inspection teams, demonstrated with fictional jobs and explicit source-change simulations. Includes current-version review, approval invalidation, failure handling, operator-supplied records with expiry, audit history, verifiable evidence export, and genuine Anakin public-page capture. AI-assisted development. Commercial assumptions and proposed pilot are unvalidated. This application does not authorize or control flights.\n`;
+const narration = `# GroundProof: verbatim voiceover and recording guide\n\nRuntime: **3 minutes 30 seconds**. Narration: **${wordCount} words** with deliberate pauses to inspect the interface. The completed video uses an explicitly disclosed AI narrator. The separate SRT is aligned to the spoken audio with word timestamps. All screen footage comes from the running application.\n\nThe video shows the actual application at 1440 × 900. Demonstration jobs and notice changes are fictional and labeled. The Boston capture is genuinely retrieved through Anakin during recording. No password, recovery key, or API key appears.\n\n${scenes.map((scene) => `## ${stamp(scene.start)} to ${stamp(scene.end)} · ${scene.title}\n\n> ${scene.text}\n\nScreen action: ${scene.action}\n`).join("\n")}\n## Reproduce the video\n\n1. Run the application, then node scripts/record-demo.mjs --url=https://groundproof-flight.web.app. Set DEMO_OUTPUT_DIR to choose the output directory. A successful live Anakin capture is required; the recorder never substitutes fixtures or changes provider labels.\n2. Set OPENAI_API_KEY_FILE to a private local file outside the repository, then run node scripts/narrate-demo.mjs. The key never enters product footage or deliverables.\n3. Run node scripts/align-demo-narration.mjs with the same output directory. This replaces draft subtitle timing with timestamps from the actual audio.\n4. Run node scripts/caption-demo.mjs, then mux the captioned footage and work/media/groundproof-narration.wav with H.264 video and AAC audio. Inspect exported frames, transcript, duration, and audio loudness.\n5. Upload groundproof-demo-narrated.mp4. Keep the AI voice disclosure and the distinction between fictional drills and real public-page capture.\n\nUse --rehearse for an accelerated UI check and --write-assets-only to regenerate the guide and draft captions without recording. Draft captions are not the final speech-aligned track.\n\n## Credit and scope\n\nGroundProof by Shivam Gupta, built with AI-assisted development. Narrator generated using OpenAI text to speech; it is not a clone of Shivam or another person. Proposed pricing and pilot assumptions are unvalidated. The application manages internal evidence decisions and does not authorize or control flights.\n`;
 await writeFile(resolve(root, "docs/DEMO-SCRIPT.md"), narration);
 await writeFile(resolve(output, "groundproof-demo-voiceover.md"), narration);
 await writeFile(resolve(output, "groundproof-demo-script.md"), narration);
@@ -228,6 +165,8 @@ async function dismiss() {
 const mission = "Facade inspection · east elevation";
 const notice = "Harbor Works access notice";
 let decisionBundle;
+let anakinCaptureStarted;
+let anakinCaptureProof;
 try {
   await at(12, "Enter isolated demonstration", async () => {
     await page
@@ -400,6 +339,7 @@ try {
       .selectOption("anakin");
   });
   await at(169, "Live Anakin capture", async () => {
+    anakinCaptureStarted = performance.now();
     await page
       .getByRole("button", {
         name: "Capture City of Boston · Film permits",
@@ -422,6 +362,37 @@ try {
     await expect(page.locator(".snapshot.current pre")).toContainText(
       /Boston/i,
     );
+    const response = await page.request.get("/api/state");
+    if (!response.ok())
+      throw new Error("Could not verify recorded live capture.");
+    const state = await response.json();
+    const source = state.sources.find(
+      (source) => source.title === "City of Boston · Film permits",
+    );
+    if (
+      source?.latest?.provider !== "anakin" ||
+      !/Boston/i.test(source.latest.content)
+    )
+      throw new Error(
+        "Recorded source does not contain genuine Anakin provenance and Boston text.",
+      );
+    anakinCaptureProof = {
+      provider: source.latest.provider,
+      source: source.url,
+      capturedAt: source.latest.capturedAt,
+      hash: source.latest.hash,
+      characters: source.latest.content.length,
+      verifiedAfterMs: Math.round(performance.now() - anakinCaptureStarted),
+      durationScope:
+        "User click to recorded snapshot verification, including the planned on-screen pause; not provider latency.",
+      application: url,
+      success: true,
+    };
+    if (!rehearse)
+      await writeFile(
+        resolve(output, "anakin-integration-proof.json"),
+        JSON.stringify(anakinCaptureProof, null, 2) + "\n",
+      );
   });
   await at(184, "Open business assumptions", async () => {
     await close();
@@ -482,6 +453,7 @@ try {
           narrationWords: wordCount,
           scenarios:
             "Fictional demo jobs and source changes; genuine live Anakin Boston source capture.",
+          liveCapture: anakinCaptureProof,
           completedMissionId: decisionBundle.mission.id,
           exportManifestHash: decisionBundle.manifest.hash,
           video: "groundproof-demo-silent.mp4",
@@ -493,12 +465,13 @@ try {
       ) + "\n",
     );
     console.log(`Saved ${target}`);
-    await captionDemo({
-      input: target,
-      srt: resolve(output, "groundproof-demo-captions.srt"),
-      output: resolve(output, "groundproof-demo-captioned.mp4"),
-      workingDirectory: recordings,
-    });
+    if (!args.includes("--skip-captions"))
+      await captionDemo({
+        input: target,
+        srt: resolve(output, "groundproof-demo-captions.srt"),
+        output: resolve(output, "groundproof-demo-captioned.mp4"),
+        workingDirectory: recordings,
+      });
   } else console.log("All screencast actions rehearsed successfully.");
 } catch (error) {
   await page

@@ -34,6 +34,34 @@ export async function captionDemo({
     cues.some((cue) => !Number.isFinite(cue.start) || cue.end <= cue.start)
   )
     throw new Error("Subtitle timing is invalid.");
+  const probe = spawnSync(
+    "ffprobe",
+    [
+      "-v",
+      "error",
+      "-show_entries",
+      "format=duration",
+      "-of",
+      "default=nw=1:nk=1",
+      input,
+    ],
+    { encoding: "utf8" },
+  );
+  const duration = Number(probe.stdout?.trim());
+  if (probe.status !== 0 || !Number.isFinite(duration))
+    throw new Error("Could not read video duration.");
+  const panels = [];
+  let cursor = 0;
+  for (const cue of cues) {
+    if (cue.start < cursor - 0.001 || cue.end > duration + 0.1)
+      throw new Error("Subtitle cues overlap or exceed the recording.");
+    if (cue.start > cursor)
+      panels.push({ start: cursor, end: cue.start, text: "" });
+    panels.push(cue);
+    cursor = cue.end;
+  }
+  if (cursor < duration)
+    panels.push({ start: cursor, end: duration, text: "" });
   const framesDir = resolve(workingDirectory, "caption-panels");
   await mkdir(framesDir, { recursive: true });
   const browser = await chromium.launch();
@@ -43,11 +71,11 @@ export async function captionDemo({
   });
   const page = await context.newPage();
   await page.setContent(
-    '<!doctype html><html lang="en"><head><meta charset="utf-8"><style>*{box-sizing:border-box}html,body{margin:0;width:1440px;height:180px;overflow:hidden}body{background:#15291e;color:#fff;font-family:Arial,Helvetica,sans-serif;border-top:1px solid #61725a;display:flex;align-items:center;justify-content:center}small{position:absolute;left:30px;top:16px;font-size:10px;letter-spacing:2px;color:#c5d1bb}p{font-size:32px;line-height:1.3;text-align:center;white-space:pre-line;margin:17px 40px 0;width:1360px}</style></head><body><small>GROUNDPROOF · DEMONSTRATION NARRATION</small><p></p></body></html>',
+    '<!doctype html><html lang="en"><head><meta charset="utf-8"><style>*{box-sizing:border-box}html,body{margin:0;width:1440px;height:180px;overflow:hidden}body{background:#15291e;color:#fff;font-family:Arial,Helvetica,sans-serif;border-top:1px solid #61725a;display:flex;align-items:center;justify-content:center}small{position:absolute;left:30px;top:16px;font-size:13px;letter-spacing:1.8px;color:#c5d1bb}p{font-size:32px;line-height:1.3;text-align:center;white-space:pre-line;margin:17px 40px 0;width:1360px}</style></head><body><small>GROUNDPROOF · AI VOICEOVER · ACTUAL PRODUCT FOOTAGE</small><p></p></body></html>',
   );
   const concat = ["ffconcat version 1.0"];
   try {
-    for (const [index, cue] of cues.entries()) {
+    for (const [index, cue] of panels.entries()) {
       const filename = `caption-${String(index).padStart(4, "0")}.png`;
       await page.locator("p").evaluate((element, text) => {
         element.textContent = text;
@@ -61,7 +89,7 @@ export async function captionDemo({
       concat.push(`file '${filename}'`, `duration ${duration.toFixed(6)}`);
     }
     concat.push(
-      `file 'caption-${String(cues.length - 1).padStart(4, "0")}.png'`,
+      `file 'caption-${String(panels.length - 1).padStart(4, "0")}.png'`,
     );
   } finally {
     await context.close();
@@ -86,7 +114,7 @@ export async function captionDemo({
       "-map",
       "[v]",
       "-t",
-      String(cues.at(-1).end),
+      String(duration),
       "-c:v",
       "libx264",
       "-crf",
