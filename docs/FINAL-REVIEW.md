@@ -4,6 +4,12 @@ Reviewed September 23, 2026 against the challenge's six weighted criteria. **Pro
 
 The product has moved beyond the preliminary architecture assessment in `RUBRIC.md`: a person can create an account, assemble evidence dependencies, inspect real captured text, review a version, sign a mission, change a dependency, and export a verifiable record. The most credible differentiation is the deliberately demonstrated inability to reuse an obsolete approval. Subsequent operator-record ingestion, declared-validity checks, opt-in monitoring and stale-dialog revision binding resolved concrete workflow gaps found in this review. The principal unresolved weakness is demonstrated customer value, not a missing dashboard feature.
 
+## Final release addendum
+
+After the review below, the final application build (`e1501cba47daecb96bcd31859427b84fc3779a02`) passed **139 native tests**, **143 tests including the Worker adapter**, strict typechecks, and a dependency audit with **zero reported vulnerabilities**. Eight browser workflows passed locally and eight passed against the public HTTPS deployment. Automated accessibility checks found zero serious or critical issues on nine tested surfaces. The same complete pipeline, including eight browser workflows, passed on a clean GitHub Linux runner. Counts across runtimes overlap and are not additive. See [release verification](RELEASE-VERIFICATION.md).
+
+The source of an intermittent HTTP500 during rapid browser testing was a rate-limit error object without a status code. It now returns HTTP429 with Retry-After, with three enabled-limiter regressions; static assets and health checks do not consume API allowance. The final narration is **436 words** over **3 minutes 30 seconds**, superseding the earlier 402-word script mentioned below. Public deployment acceptance is complete. Customer validation and operational-recovery limitations remain. The score below is retained as a conservative internal assessment; stronger deployment proof does not establish commercial demand.
+
 ## Weighted rubric
 
 | Criterion | Weight | Score / 10 | Weighted points | Evidence and deduction |

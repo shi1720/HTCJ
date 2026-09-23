@@ -1,6 +1,6 @@
 # GroundProof — verbatim voiceover and recording guide
 
-Runtime: **3 minutes 30 seconds**. Narration: **436 words**, approximately 125 words per minute. Read the quoted text exactly. Record your voice against the supplied silent video; the separate SRT matches this script. Timing allows natural pauses.
+Runtime: **3 minutes 30 seconds**. Narration: **436 words**, approximately 125 words per minute. Read the quoted text exactly. Record your voice against the supplied clean silent video; the separate SRT matches this script. The captioned MP4 adds these words in a reserved band below the interface and can be watched immediately without a voice track. Timing allows natural pauses.
 
 The video shows the actual application at 1440 × 900. All demonstration jobs and notice changes are fictional and labeled. The Boston capture is genuinely retrieved through Anakin during recording. No account password or API key appears.
 
@@ -62,7 +62,7 @@ Screen action: Open Workspace settings and show the commercial calculator, expli
 
 ## Reproduce the silent screencast
 
-Run npm start, then node scripts/record-demo.mjs --url=http://localhost:3001. A successful Anakin capture requires server-side provider availability. The recorder stops if live evidence cannot be captured; it never substitutes fixtures or relabels another provider. Use --rehearse for an accelerated UI check, and --write-assets-only to regenerate this guide and captions without recording.
+Run npm start, then node scripts/record-demo.mjs --url=http://localhost:3001. Generated deliverables default to work/recordings/deliverables inside the repository. Set DEMO_OUTPUT_DIR to an explicit output directory to choose another destination. A successful Anakin capture requires server-side provider availability. The recorder stops if live evidence cannot be captured; it never substitutes fixtures or relabels another provider. Use --rehearse for an accelerated UI check, and --write-assets-only to regenerate this guide and captions without recording.
 
 ## Submission video description
 

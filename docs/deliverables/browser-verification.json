@@ -1,0 +1,152 @@
+{
+  "product": "GroundProof",
+  "verifiedAt": "2026-09-23T10:25:47.595227+00:00",
+  "browser": "Chromium desktop1440x1000 and Pixel7 mobile emulation",
+  "local": {
+    "url": "http://localhost:3001",
+    "passed": 8,
+    "total": 8,
+    "durationMs": 142937.15099999998,
+    "workflows": [
+      {
+        "project": "desktop-chromium",
+        "workflow": "closure \u2192 source hold \u2192 recovery review \u2192 fresh signoff \u2192 verifiable export",
+        "status": "passed",
+        "durationMs": 12396
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "new account \u2192 real source capture \u2192 mission review \u2192 logout and login persistence",
+        "status": "passed",
+        "durationMs": 14347
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "independent demo isolation, keyboard dialog and responsive containment",
+        "status": "passed",
+        "durationMs": 2793
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "operator record \u2192 expiry blocks planned job \u2192 version update \u2192 separate review and approval",
+        "status": "passed",
+        "durationMs": 10003
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "closure \u2192 source hold \u2192 recovery review \u2192 fresh signoff \u2192 verifiable export",
+        "status": "passed",
+        "durationMs": 26203
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "new account \u2192 real source capture \u2192 mission review \u2192 logout and login persistence",
+        "status": "passed",
+        "durationMs": 41330
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "independent demo isolation, keyboard dialog and responsive containment",
+        "status": "passed",
+        "durationMs": 2838
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "operator record \u2192 expiry blocks planned job \u2192 version update \u2192 separate review and approval",
+        "status": "passed",
+        "durationMs": 31349
+      }
+    ]
+  },
+  "deployed": {
+    "url": "https://groundproof.groundproof.workers.dev",
+    "passed": 8,
+    "total": 8,
+    "durationMs": 154500.701,
+    "workflows": [
+      {
+        "project": "desktop-chromium",
+        "workflow": "closure \u2192 source hold \u2192 recovery review \u2192 fresh signoff \u2192 verifiable export",
+        "status": "passed",
+        "durationMs": 14494
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "new account \u2192 real source capture \u2192 mission review \u2192 logout and login persistence",
+        "status": "passed",
+        "durationMs": 15464
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "independent demo isolation, keyboard dialog and responsive containment",
+        "status": "passed",
+        "durationMs": 4448
+      },
+      {
+        "project": "desktop-chromium",
+        "workflow": "operator record \u2192 expiry blocks planned job \u2192 version update \u2192 separate review and approval",
+        "status": "passed",
+        "durationMs": 11355
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "closure \u2192 source hold \u2192 recovery review \u2192 fresh signoff \u2192 verifiable export",
+        "status": "passed",
+        "durationMs": 27344
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "new account \u2192 real source capture \u2192 mission review \u2192 logout and login persistence",
+        "status": "passed",
+        "durationMs": 42634
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "independent demo isolation, keyboard dialog and responsive containment",
+        "status": "passed",
+        "durationMs": 4508
+      },
+      {
+        "project": "mobile-chromium",
+        "workflow": "operator record \u2192 expiry blocks planned job \u2192 version update \u2192 separate review and approval",
+        "status": "passed",
+        "durationMs": 32693
+      }
+    ]
+  },
+  "accessibility": {
+    "seriousViolations": 0,
+    "criticalViolations": 0,
+    "auditedSurfaces": [
+      "Landing",
+      "Operations overview",
+      "Mission board",
+      "Evidence library",
+      "Evidence review dialog",
+      "Proof lab",
+      "Audit trail",
+      "Workspace settings",
+      "Operator record form"
+    ],
+    "ruleTags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa"
+    ],
+    "scope": "Automated Axe audit; not a full accessibility certification."
+  },
+  "liveData": "Each registration workflow captured https://www.faa.gov/uas through the Direct provider. Demo mission notices are explicitly fictional. Anakin capture is covered separately by the recorded demonstration.",
+  "screenshots": [
+    "landing.png",
+    "groundproof-overview.png",
+    "groundproof-mission-board.png",
+    "source-review.png",
+    "mobile.png"
+  ],
+  "limitations": [
+    "Browser emulation does not replace testing on physical mobile devices.",
+    "No flight operations or regulatory authorization were tested.",
+    "Production API quotas remained enabled. The test client paced requests to stay within those limits."
+  ]
+}

@@ -1,25 +1,53 @@
-// Editable GroundProof pitch deck. Run with the Codex bundled Node runtime.
-// ARTIFACT_NODE_MODULES, PRESENTATION_SKILL_DIR, RUNTIME_PYTHON and WORKSPACE_DIR
-// may be supplied to make the builder portable between configured runtimes.
+// Optional editable pitch-deck builder. See docs/ARTIFACTS.md for prerequisites.
 import fs from "node:fs/promises";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const repo = path.resolve(
-  path.dirname(new URL(import.meta.url).pathname),
+  path.dirname(fileURLToPath(import.meta.url)),
   "../..",
 );
-const workspaceDir = process.env.WORKSPACE_DIR || path.resolve(repo, "../..");
-const skillDir =
-  process.env.PRESENTATION_SKILL_DIR ||
-  "/Users/shivamgupta/.codex/plugins/cache/openai-primary-runtime/presentations/26.904.11930/skills/presentations";
-const modules =
-  process.env.ARTIFACT_NODE_MODULES ||
-  "/Users/shivamgupta/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules";
+const workspaceDir = path.resolve(process.env.WORKSPACE_DIR || repo);
+function requiredPath(name, description) {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(
+      `${name} is required: ${description}. See docs/ARTIFACTS.md. The supplied PPTX can be edited without this builder.`,
+    );
+  }
+  return path.resolve(value);
+}
+const skillDir = requiredPath(
+  "PRESENTATION_SKILL_DIR",
+  "path to the Codex presentations skill directory",
+);
+const runtimePython = requiredPath(
+  "RUNTIME_PYTHON",
+  "path to the Python executable with the presentation validation dependencies",
+);
+const modules = path.resolve(
+  process.env.ARTIFACT_NODE_MODULES || path.join(repo, "node_modules"),
+);
+for (const [target, hint] of [
+  [
+    path.join(modules, "@oai/artifact-tool/package.json"),
+    "Set ARTIFACT_NODE_MODULES to the directory containing @oai/artifact-tool",
+  ],
+  [
+    path.join(skillDir, "container_tools/artifact_tool_utils.mjs"),
+    "Check PRESENTATION_SKILL_DIR",
+  ],
+  [runtimePython, "Check RUNTIME_PYTHON"],
+]) {
+  try {
+    await fs.access(target);
+  } catch {
+    throw new Error(
+      `Missing artifact prerequisite: ${target}. ${hint}. See docs/ARTIFACTS.md.`,
+    );
+  }
+}
 process.env.RUNTIME_NODE_MODULES ||= modules;
-const runtimePython =
-  process.env.RUNTIME_PYTHON ||
-  "/Users/shivamgupta/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3";
 const buildDir = path.join(workspaceDir, "work/artifacts/pitch");
 const outputDir = path.join(workspaceDir, "outputs");
 await fs.mkdir(buildDir, { recursive: true });

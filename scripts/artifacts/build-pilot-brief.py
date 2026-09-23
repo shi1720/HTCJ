@@ -1,20 +1,41 @@
 """GroundProof pilot brief. Requires reportlab and pypdf. All content is editable here."""
 from pathlib import Path
 import os
-from reportlab.pdfgen import canvas
-from reportlab.lib.colors import HexColor
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import Paragraph, Table, TableStyle
-from reportlab.lib.styles import ParagraphStyle
-from reportlab.lib.enums import TA_LEFT
-from pypdf import PdfReader
+try:
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.colors import HexColor
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.platypus import Paragraph, Table, TableStyle
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.lib.enums import TA_LEFT
+    from pypdf import PdfReader
+except ModuleNotFoundError as error:
+    raise SystemExit(
+        f"Missing PDF prerequisite: {error.name}. Install reportlab and pypdf "
+        "in your Python environment. See docs/ARTIFACTS.md."
+    ) from None
 
 REPO = Path(__file__).resolve().parents[2]
-WORKSPACE = Path(os.environ.get("WORKSPACE_DIR", REPO.parent.parent))
+WORKSPACE = Path(os.environ.get("WORKSPACE_DIR", REPO)).expanduser().resolve()
 OUT = WORKSPACE / "outputs" / "groundproof-pilot-brief.pdf"
+font_override = os.environ.get("ARTIFACT_FONT_DIR")
+font_candidates = [Path(font_override).expanduser()] if font_override else [
+    Path("/usr/share/fonts/truetype/liberation2"),
+    Path("/usr/share/fonts/truetype/liberation"),
+    Path("/usr/local/share/fonts/liberation"),
+]
+required_fonts = ["LiberationSans-Regular.ttf", "LiberationSans-Bold.ttf"]
+FONT_DIR = next((folder for folder in font_candidates if all(
+    (folder / name).is_file() for name in required_fonts
+)), None)
+if FONT_DIR is None:
+    raise SystemExit(
+        "Liberation Sans fonts were not found. Set ARTIFACT_FONT_DIR to a "
+        "directory containing LiberationSans-Regular.ttf and LiberationSans-Bold.ttf. "
+        "See docs/ARTIFACTS.md."
+    )
 OUT.parent.mkdir(parents=True, exist_ok=True)
-FONT_DIR = Path(os.environ.get("ARTIFACT_FONT_DIR", "/Users/shivamgupta/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libreoffice-headless/libreoffice/LibreOfficeDev.app/Contents/Resources/fonts/truetype"))
 pdfmetrics.registerFont(TTFont("GP", str(FONT_DIR / "LiberationSans-Regular.ttf")))
 pdfmetrics.registerFont(TTFont("GP-Bold", str(FONT_DIR / "LiberationSans-Bold.ttf")))
 pdfmetrics.registerFontFamily("GP",normal="GP",bold="GP-Bold",italic="GP",boldItalic="GP-Bold")

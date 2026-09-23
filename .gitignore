@@ -14,3 +14,4 @@ work/
 .dev.vars.*
 workers/env.d.ts
 .recordings/
+outputs/

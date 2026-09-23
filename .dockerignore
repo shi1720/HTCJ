@@ -8,3 +8,10 @@ dist
 outputs
 playwright-report
 test-results
+.dev.vars
+.dev.vars.*
+.wrangler
+.recordings
+work
+*.log
+.DS_Store

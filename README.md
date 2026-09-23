@@ -106,12 +106,14 @@ A working, tested release is not proof of field reliability or enterprise readin
 
 ## Submission package
 
+- [Release verification](docs/RELEASE-VERIFICATION.md)
 - [Submission text](docs/SUBMISSION.md)
 - [Verbatim video script and shot list](docs/DEMO-SCRIPT.md)
 - [Commercial case and competitors](docs/BUSINESS.md)
 - [Four-week shadow pilot](docs/PILOT.md)
 - [Primary-source research](docs/SOURCES.md)
 - [Rubric review](docs/RUBRIC.md)
+- [Artifact editing and generation](docs/ARTIFACTS.md)
 - [Organizer questions and conflicting dates](docs/ORGANIZER-QUESTIONS.md)
 
 The published rules currently conflict with the headline/event schedule. The checklist targets readiness before the earliest published date, October 8, pending clarification. It does not silently assume the latest date is safe.

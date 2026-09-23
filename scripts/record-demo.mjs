@@ -4,9 +4,12 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { captionDemo } from "./caption-demo.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const output = resolve(root, "../../outputs");
+const output = resolve(
+  process.env.DEMO_OUTPUT_DIR ?? resolve(root, "work/recordings/deliverables"),
+);
 const args = process.argv.slice(2);
 const url =
   process.env.DEMO_URL ??
@@ -137,7 +140,7 @@ const wordCount = scenes.reduce(
   (n, scene) => n + scene.text.split(/\s+/).length,
   0,
 );
-const narration = `# GroundProof — verbatim voiceover and recording guide\n\nRuntime: **3 minutes 30 seconds**. Narration: **${wordCount} words**, approximately ${Math.round(wordCount / 3.5)} words per minute. Read the quoted text exactly. Record your voice against the supplied silent video; the separate SRT matches this script. Timing allows natural pauses.\n\nThe video shows the actual application at 1440 × 900. All demonstration jobs and notice changes are fictional and labeled. The Boston capture is genuinely retrieved through Anakin during recording. No account password or API key appears.\n\n${scenes.map((scene) => `## ${stamp(scene.start)}–${stamp(scene.end)} · ${scene.title}\n\n> ${scene.text}\n\nScreen action: ${scene.action}\n`).join("\n")}\n## How to finish\n\n1. Import groundproof-demo-silent.mp4 into your preferred video editor.\n2. Record the narration one segment at a time, matching the timestamps above. Keep brief pauses at sentence boundaries.\n3. Import groundproof-demo-captions.srt as an optional subtitle track. These captions represent the supplied narration; keep them only if you read this version.\n4. Export MP4 with H.264 video and AAC audio. Check that the first and last words are audible and no private tabs or notifications were added.\n5. Upload the completed video to your chosen hosting service and place the public viewing link in the submission.\n\n## Reproduce the silent screencast\n\nRun npm start, then node scripts/record-demo.mjs --url=http://localhost:3001. A successful Anakin capture requires server-side provider availability. The recorder stops if live evidence cannot be captured; it never substitutes fixtures or relabels another provider. Use --rehearse for an accelerated UI check, and --write-assets-only to regenerate this guide and captions without recording.\n\n## Submission video description\n\nGroundProof by Shivam Gupta. Working operational evidence management software for drone inspection teams, demonstrated with fictional jobs and explicit source-change simulations. Includes current-version review, approval invalidation, failure handling, operator-supplied records with expiry, audit history, verifiable evidence export, and genuine Anakin public-page capture. AI-assisted development. Commercial assumptions and proposed pilot are unvalidated. This application does not authorize or control flights.\n`;
+const narration = `# GroundProof — verbatim voiceover and recording guide\n\nRuntime: **3 minutes 30 seconds**. Narration: **${wordCount} words**, approximately ${Math.round(wordCount / 3.5)} words per minute. Read the quoted text exactly. Record your voice against the supplied clean silent video; the separate SRT matches this script. The captioned MP4 adds these words in a reserved band below the interface and can be watched immediately without a voice track. Timing allows natural pauses.\n\nThe video shows the actual application at 1440 × 900. All demonstration jobs and notice changes are fictional and labeled. The Boston capture is genuinely retrieved through Anakin during recording. No account password or API key appears.\n\n${scenes.map((scene) => `## ${stamp(scene.start)}–${stamp(scene.end)} · ${scene.title}\n\n> ${scene.text}\n\nScreen action: ${scene.action}\n`).join("\n")}\n## How to finish\n\n1. Import groundproof-demo-silent.mp4 into your preferred video editor.\n2. Record the narration one segment at a time, matching the timestamps above. Keep brief pauses at sentence boundaries.\n3. Import groundproof-demo-captions.srt as an optional subtitle track. These captions represent the supplied narration; keep them only if you read this version.\n4. Export MP4 with H.264 video and AAC audio. Check that the first and last words are audible and no private tabs or notifications were added.\n5. Upload the completed video to your chosen hosting service and place the public viewing link in the submission.\n\n## Reproduce the silent screencast\n\nRun npm start, then node scripts/record-demo.mjs --url=http://localhost:3001. Generated deliverables default to work/recordings/deliverables inside the repository. Set DEMO_OUTPUT_DIR to an explicit output directory to choose another destination. A successful Anakin capture requires server-side provider availability. The recorder stops if live evidence cannot be captured; it never substitutes fixtures or relabels another provider. Use --rehearse for an accelerated UI check, and --write-assets-only to regenerate this guide and captions without recording.\n\n## Submission video description\n\nGroundProof by Shivam Gupta. Working operational evidence management software for drone inspection teams, demonstrated with fictional jobs and explicit source-change simulations. Includes current-version review, approval invalidation, failure handling, operator-supplied records with expiry, audit history, verifiable evidence export, and genuine Anakin public-page capture. AI-assisted development. Commercial assumptions and proposed pilot are unvalidated. This application does not authorize or control flights.\n`;
 await writeFile(resolve(root, "docs/DEMO-SCRIPT.md"), narration);
 await writeFile(resolve(output, "groundproof-demo-voiceover.md"), narration);
 await writeFile(resolve(output, "groundproof-demo-script.md"), narration);
@@ -340,6 +343,16 @@ try {
     const chunks = [];
     for await (const chunk of stream) chunks.push(chunk);
     decisionBundle = JSON.parse(Buffer.concat(chunks).toString());
+    if (!rehearse) {
+      await writeFile(
+        resolve(output, "groundproof-decision-packet.json"),
+        JSON.stringify(decisionBundle, null, 2) + "\n",
+      );
+      await writeFile(
+        resolve(output, "groundproof-decision-manifest.sha256"),
+        decisionBundle.manifest.hash + "\n",
+      );
+    }
     if (decisionBundle.mission.assessment.status !== "ready")
       throw new Error("Exported mission is not freshly signed.");
   });
@@ -470,6 +483,7 @@ try {
           scenarios:
             "Fictional demo jobs and source changes; genuine live Anakin Boston source capture.",
           completedMissionId: decisionBundle.mission.id,
+          exportManifestHash: decisionBundle.manifest.hash,
           video: "groundproof-demo-silent.mp4",
           captions: "groundproof-demo-captions.srt",
           applicationErrors: errors,
@@ -479,6 +493,12 @@ try {
       ) + "\n",
     );
     console.log(`Saved ${target}`);
+    await captionDemo({
+      input: target,
+      srt: resolve(output, "groundproof-demo-captions.srt"),
+      output: resolve(output, "groundproof-demo-captioned.mp4"),
+      workingDirectory: recordings,
+    });
   } else console.log("All screencast actions rehearsed successfully.");
 } catch (error) {
   await page
