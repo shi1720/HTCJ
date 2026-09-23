@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-09-23T11:58:23.915827+00:00",
+  "primaryUrl": "https://groundproof-flight.web.app",
+  "youtube": {
+    "videoId": "0zYnjZi1MFg",
+    "url": "https://youtu.be/0zYnjZi1MFg",
+    "studioUrl": "https://studio.youtube.com/video/0zYnjZi1MFg/edit",
+    "status": "uploaded, private draft",
+    "titleSaved": true,
+    "descriptionSaved": true,
+    "customThumbnailSaved": true,
+    "hdProcessingComplete": true,
+    "language": "English",
+    "aiDisclosure": "Yes",
+    "separateSubtitleTrack": "44 cues imported; save persistence not verified",
+    "burnedCaptions": true,
+    "publicPlaybackVerified": false
+  },
+  "devpost": {
+    "url": "https://devpost.com/software/groundproof",
+    "status": "draft, 3 of 4 steps",
+    "storySaved": true,
+    "coverSaved": true,
+    "galleryImagesSaved": 3,
+    "allThreeCaptionsVerifiedInPreview": true,
+    "contributorCreditSaved": true,
+    "productRepositoryTestingLinksSaved": true,
+    "demoUrlSaved": "https://youtu.be/0zYnjZi1MFg",
+    "embedStatus": "This video is private",
+    "submitted": false
+  },
+  "blocker": "Studio publishing dialog remained inaccessible through repeated native Safari and Chrome recovery attempts. Blank page rendering, ScreenCaptureKit capture errors, native pipe closure and unsupported Codex auth method: apikey prevented final verification.",
+  "remaining": [
+    "Confirm the English subtitle track is saved.",
+    "Complete the existing YouTube draft with Public visibility. Do not re-upload.",
+    "Verify public playback and Devpost video embedding.",
+    "Submit the saved Devpost entry and verify submitted status."
+  ]
+}

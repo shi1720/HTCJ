@@ -18,7 +18,7 @@ This is an internal submission checklist and skeptical scoring guide for the HTC
 
 Use [release verification](RELEASE-VERIFICATION.md) for exact final test counts, the published commit and hosted results. Do not sum overlapping native and Worker-inclusive suites. Tests support the behaviors they exercise; they do not certify aviation safety.
 
-The primary product URL is [groundproof-flight.web.app](https://groundproof-flight.web.app). The final revised Firebase HTTP and complete browser workflows passed on the functional baseline. The subsequent landing-only CSS change passed separate hosted asset and five-width layout checks. Final narration, footage and caption checks passed. Public YouTube playback and Devpost submission remain pending because desktop file uploads are blocked. The release record identifies these distinct scopes and commits.
+The primary product URL is [groundproof-flight.web.app](https://groundproof-flight.web.app). The final revised Firebase HTTP and complete browser workflows passed on the functional baseline. The subsequent landing-only CSS change passed separate hosted asset and five-width layout checks. Final narration, footage and caption checks passed. The video upload and Devpost media attachments are saved. Public YouTube playback and Devpost submission remain pending because Studio publishing controls are failing to load reliably. The release record identifies these distinct scopes and commits.
 
 The demo's jobs and change drills are fictional. Its $4,800 value is illustrative planned work affected, not measured savings. Source changes produce **Needs review**; explicit blocking, stale/missing evidence and capture failure produce **On hold**. A source review and a mission signature are separate actions.
 

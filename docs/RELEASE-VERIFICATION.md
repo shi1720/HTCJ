@@ -74,7 +74,7 @@ The recorded decision packet independently passed the verifier against the separ
 
 ## Publication status
 
-The completed video and supporting materials are ready for distribution. The Devpost draft has its name, tagline, story, technology tags and product/repository/testing links saved. YouTube upload, Devpost image/video upload and final submission are still pending. Native desktop control repeatedly returned `noWindowsAvailable`, capture failures and disabled Upload controls even after file selection. No public YouTube playback or submitted Devpost entry is claimed. This is an access blocker, not an untested application feature.
+The narrated video has uploaded to YouTube as draft `0zYnjZi1MFg`, with the saved title, description, custom thumbnail, English language, AI disclosure and completed HD processing. Public visibility and separate subtitle-track persistence are not yet verified. The Devpost draft now has its cover, three captioned screenshots, demo URL, contributor credit, story, technology tags and product/repository/testing links saved. Its preview confirms all three captions, but the video embed still reports private. Final submission remains pending. YouTube Studio repeatedly failed to expose usable publishing controls, with blank page rendering and native browser capture errors. No public YouTube playback or completed Devpost submission is claimed.
 
 ## Limits of this evidence
 
